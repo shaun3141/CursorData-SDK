@@ -5,7 +5,7 @@ Provides typed collections with helper methods for filtering, sorting, and group
 
 from collections.abc import Iterator
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, TypeVar, cast
 
 if TYPE_CHECKING:
     from cursordata.cursordiskkv_models import BubbleConversation
@@ -66,7 +66,10 @@ class Collection(Generic[T]):
         Returns:
             New sorted collection.
         """
-        items = sorted(self._items, key=key, reverse=reverse)
+        if key is None:
+            items = sorted(self._items, reverse=reverse)
+        else:
+            items = sorted(self._items, key=key, reverse=reverse)
         return self.__class__(items)
 
     def map(self, func: Callable[[T], U]) -> list[U]:
@@ -198,7 +201,7 @@ class BubbleCollection(Collection["BubbleConversation"]):
 
             return True
 
-        return self.filter(predicate)
+        return cast("BubbleCollection", self.filter(predicate))
 
     def filter_by_model(self, model_name: str) -> "BubbleCollection":
         """Filter bubbles by model name.
@@ -210,7 +213,7 @@ class BubbleCollection(Collection["BubbleConversation"]):
             Filtered collection.
         """
 
-        return self.filter(lambda conv: conv.model_name == model_name)
+        return cast("BubbleCollection", self.filter(lambda conv: conv.model_name == model_name))
 
     def filter_by_token_count(
         self, min_input: Optional[int] = None, min_output: Optional[int] = None
@@ -232,28 +235,34 @@ class BubbleCollection(Collection["BubbleConversation"]):
                 return False
             return True
 
-        return self.filter(predicate)
+        return cast("BubbleCollection", self.filter(predicate))
 
     def with_code_blocks(self) -> "BubbleCollection":
         """Filter bubbles that have suggested code blocks."""
-        return self.filter(lambda conv: len(conv.suggested_code_blocks) > 0)
+        return cast("BubbleCollection", self.filter(lambda conv: len(conv.suggested_code_blocks) > 0))
 
     def with_diffs(self) -> "BubbleCollection":
         """Filter bubbles that have diffs."""
-        return self.filter(
-            lambda conv: len(conv.assistant_suggested_diffs) > 0
-            or len(conv.diffs_since_last_apply) > 0
+        return cast(
+            "BubbleCollection",
+            self.filter(
+                lambda conv: len(conv.assistant_suggested_diffs) > 0
+                or len(conv.diffs_since_last_apply) > 0
+            ),
         )
 
     def with_lint_errors(self) -> "BubbleCollection":
         """Filter bubbles that have lint errors."""
-        return self.filter(
-            lambda conv: len(conv.lints) > 0 or len(conv.multi_file_linter_errors) > 0
+        return cast(
+            "BubbleCollection",
+            self.filter(
+                lambda conv: len(conv.lints) > 0 or len(conv.multi_file_linter_errors) > 0
+            ),
         )
 
     def agentic_only(self) -> "BubbleCollection":
         """Filter for agentic conversations only."""
-        return self.filter(lambda conv: conv.is_agentic)
+        return cast("BubbleCollection", self.filter(lambda conv: conv.is_agentic))
 
     def group_by_date(self) -> dict[str, "BubbleCollection"]:
         """Group bubbles by date (YYYY-MM-DD).
@@ -273,7 +282,7 @@ class BubbleCollection(Collection["BubbleConversation"]):
             except Exception:
                 return "unknown"
 
-        return self.group_by(key_func)
+        return cast(dict[str, "BubbleCollection"], self.group_by(key_func))
 
     def group_by_model(self) -> dict[str, "BubbleCollection"]:
         """Group bubbles by model name.
@@ -285,7 +294,7 @@ class BubbleCollection(Collection["BubbleConversation"]):
         def key_func(conv: "BubbleConversation") -> str:
             return conv.model_name or "unknown"
 
-        return self.group_by(key_func)
+        return cast(dict[str, "BubbleCollection"], self.group_by(key_func))
 
 
 class ComposerSessionCollection(Collection["ComposerSession"]):
@@ -300,7 +309,7 @@ class ComposerSessionCollection(Collection["ComposerSession"]):
         Returns:
             Filtered collection.
         """
-        return self.filter(lambda session: extension in session.file_extensions)
+        return cast("ComposerSessionCollection", self.filter(lambda session: extension in session.file_extensions))
 
     def filter_by_file_count(
         self, min_files: Optional[int] = None, max_files: Optional[int] = None
@@ -323,7 +332,7 @@ class ComposerSessionCollection(Collection["ComposerSession"]):
                 return False
             return True
 
-        return self.filter(predicate)
+        return cast("ComposerSessionCollection", self.filter(predicate))
 
     def group_by_extension(self) -> dict[str, "ComposerSessionCollection"]:
         """Group sessions by file extension.
@@ -354,7 +363,7 @@ class AICodeTrackingCollection(Collection["AICodeTrackingEntry"]):
         Returns:
             Filtered collection.
         """
-        return self.filter(lambda entry: entry.source == source)
+        return cast("AICodeTrackingCollection", self.filter(lambda entry: entry.source == source))
 
     def filter_by_extension(self, extension: str) -> "AICodeTrackingCollection":
         """Filter entries by file extension.
@@ -365,7 +374,7 @@ class AICodeTrackingCollection(Collection["AICodeTrackingEntry"]):
         Returns:
             Filtered collection.
         """
-        return self.filter(lambda entry: entry.file_extension == extension)
+        return cast("AICodeTrackingCollection", self.filter(lambda entry: entry.file_extension == extension))
 
     def filter_by_composer_id(self, composer_id: str) -> "AICodeTrackingCollection":
         """Filter entries by composer ID.
@@ -376,7 +385,7 @@ class AICodeTrackingCollection(Collection["AICodeTrackingEntry"]):
         Returns:
             Filtered collection.
         """
-        return self.filter(lambda entry: entry.composer_id == composer_id)
+        return cast("AICodeTrackingCollection", self.filter(lambda entry: entry.composer_id == composer_id))
 
     def group_by_source(self) -> dict[str, "AICodeTrackingCollection"]:
         """Group entries by source.
@@ -388,7 +397,7 @@ class AICodeTrackingCollection(Collection["AICodeTrackingEntry"]):
         def key_func(entry: "AICodeTrackingEntry") -> str:
             return entry.source or "unknown"
 
-        return self.group_by(key_func)
+        return cast(dict[str, "AICodeTrackingCollection"], self.group_by(key_func))
 
     def group_by_extension(self) -> dict[str, "AICodeTrackingCollection"]:
         """Group entries by file extension.
@@ -400,4 +409,4 @@ class AICodeTrackingCollection(Collection["AICodeTrackingEntry"]):
         def key_func(entry: "AICodeTrackingEntry") -> str:
             return entry.file_extension or "unknown"
 
-        return self.group_by(key_func)
+        return cast(dict[str, "AICodeTrackingCollection"], self.group_by(key_func))
