@@ -239,7 +239,9 @@ class BubbleCollection(Collection["BubbleConversation"]):
 
     def with_code_blocks(self) -> "BubbleCollection":
         """Filter bubbles that have suggested code blocks."""
-        return cast("BubbleCollection", self.filter(lambda conv: len(conv.suggested_code_blocks) > 0))
+        return cast(
+            "BubbleCollection", self.filter(lambda conv: len(conv.suggested_code_blocks) > 0)
+        )
 
     def with_diffs(self) -> "BubbleCollection":
         """Filter bubbles that have diffs."""
@@ -255,9 +257,7 @@ class BubbleCollection(Collection["BubbleConversation"]):
         """Filter bubbles that have lint errors."""
         return cast(
             "BubbleCollection",
-            self.filter(
-                lambda conv: len(conv.lints) > 0 or len(conv.multi_file_linter_errors) > 0
-            ),
+            self.filter(lambda conv: len(conv.lints) > 0 or len(conv.multi_file_linter_errors) > 0),
         )
 
     def agentic_only(self) -> "BubbleCollection":
@@ -309,7 +309,10 @@ class ComposerSessionCollection(Collection["ComposerSession"]):
         Returns:
             Filtered collection.
         """
-        return cast("ComposerSessionCollection", self.filter(lambda session: extension in session.file_extensions))
+        return cast(
+            "ComposerSessionCollection",
+            self.filter(lambda session: extension in session.file_extensions),
+        )
 
     def filter_by_file_count(
         self, min_files: Optional[int] = None, max_files: Optional[int] = None
@@ -374,7 +377,9 @@ class AICodeTrackingCollection(Collection["AICodeTrackingEntry"]):
         Returns:
             Filtered collection.
         """
-        return cast("AICodeTrackingCollection", self.filter(lambda entry: entry.file_extension == extension))
+        return cast(
+            "AICodeTrackingCollection", self.filter(lambda entry: entry.file_extension == extension)
+        )
 
     def filter_by_composer_id(self, composer_id: str) -> "AICodeTrackingCollection":
         """Filter entries by composer ID.
@@ -385,7 +390,9 @@ class AICodeTrackingCollection(Collection["AICodeTrackingEntry"]):
         Returns:
             Filtered collection.
         """
-        return cast("AICodeTrackingCollection", self.filter(lambda entry: entry.composer_id == composer_id))
+        return cast(
+            "AICodeTrackingCollection", self.filter(lambda entry: entry.composer_id == composer_id)
+        )
 
     def group_by_source(self) -> dict[str, "AICodeTrackingCollection"]:
         """Group entries by source.
