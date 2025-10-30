@@ -5,7 +5,9 @@ from typing import Any, Optional
 import pytest
 
 
-def assert_dict_keys(d: dict[str, Any], required_keys: list[str], optional_keys: Optional[list[str]] = None):
+def assert_dict_keys(
+    d: dict[str, Any], required_keys: list[str], optional_keys: Optional[list[str]] = None
+):
     """Assert that a dictionary has required keys.
 
     Args:
@@ -33,8 +35,9 @@ def assert_type_or_none(value: Any, expected_type: type, message: Optional[str] 
         message: Optional custom error message
     """
     if value is not None:
-        assert isinstance(value, expected_type), \
+        assert isinstance(value, expected_type), (
             message or f"Expected {expected_type.__name__} or None, got {type(value).__name__}"
+        )
 
 
 def assert_collection_not_empty(collection, message: Optional[str] = None):
@@ -45,7 +48,9 @@ def assert_collection_not_empty(collection, message: Optional[str] = None):
         message: Optional custom error message
     """
     assert hasattr(collection, "__len__"), "Collection must have __len__ method"
-    assert len(collection) > 0, message or f"Expected non-empty collection, got {len(collection)} items"
+    assert len(collection) > 0, (
+        message or f"Expected non-empty collection, got {len(collection)} items"
+    )
 
 
 def assert_collection_empty(collection, message: Optional[str] = None):
@@ -56,7 +61,9 @@ def assert_collection_empty(collection, message: Optional[str] = None):
         message: Optional custom error message
     """
     assert hasattr(collection, "__len__"), "Collection must have __len__ method"
-    assert len(collection) == 0, message or f"Expected empty collection, got {len(collection)} items"
+    assert len(collection) == 0, (
+        message or f"Expected empty collection, got {len(collection)} items"
+    )
 
 
 class DatabaseAssertions:
@@ -67,8 +74,7 @@ class DatabaseAssertions:
         """Assert that a table exists in the database."""
         cursor = connection.cursor()
         cursor.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-            (table_name,)
+            "SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,)
         )
         result = cursor.fetchone()
         assert result is not None, f"Table '{table_name}' does not exist"
@@ -87,8 +93,9 @@ class DatabaseAssertions:
         cursor = connection.cursor()
         cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
         count = cursor.fetchone()[0]
-        assert count >= min_rows, \
-            f"Expected table '{table_name}' to have at least {min_rows} rows, got {count}"
+        assert (
+            count >= min_rows
+        ), f"Expected table '{table_name}' to have at least {min_rows} rows, got {count}"
 
 
 class ModelAssertions:
@@ -103,8 +110,9 @@ class ModelAssertions:
             required_attrs: List of attribute names that must exist
         """
         for attr in required_attrs:
-            assert hasattr(model, attr), \
-                f"Model {type(model).__name__} missing required attribute '{attr}'"
+            assert hasattr(
+                model, attr
+            ), f"Model {type(model).__name__} missing required attribute '{attr}'"
 
     @staticmethod
     def assert_model_attributes_not_none(model, attrs: list[str]):
@@ -116,8 +124,7 @@ class ModelAssertions:
         """
         for attr in attrs:
             value = getattr(model, attr, None)
-            assert value is not None, \
-                f"Model {type(model).__name__} attribute '{attr}' is None"
+            assert value is not None, f"Model {type(model).__name__} attribute '{attr}' is None"
 
 
 @pytest.fixture
@@ -130,4 +137,3 @@ def db_assertions():
 def model_assertions():
     """Fixture providing model assertion helpers."""
     return ModelAssertions
-

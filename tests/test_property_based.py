@@ -42,7 +42,7 @@ class TestParseKeyPatternProperty:
 
     @given(
         st.text(alphabet=string.ascii_letters + string.digits + ":_-", min_size=1, max_size=100),
-        st.text(alphabet=string.ascii_letters + string.digits + ":{}-", min_size=1, max_size=100)
+        st.text(alphabet=string.ascii_letters + string.digits + ":{}-", min_size=1, max_size=100),
     )
     def test_parse_key_pattern_never_crashes(self, key, pattern):
         """Test that parse_key_pattern never crashes."""
@@ -57,7 +57,9 @@ class TestParseKeyPatternProperty:
 
     @given(
         st.text(alphabet=string.ascii_letters + string.digits + ":", min_size=1, max_size=50),
-        st.lists(st.text(alphabet=string.ascii_letters, min_size=1, max_size=10), min_size=1, max_size=5)
+        st.lists(
+            st.text(alphabet=string.ascii_letters, min_size=1, max_size=10), min_size=1, max_size=5
+        ),
     )
     def test_parse_key_pattern_with_placeholders(self, prefix, parts):
         """Test parsing keys with placeholders."""
@@ -94,4 +96,3 @@ class TestCamelToSnakeProperty:
         if not empty:
             result = camel_to_snake("")
             assert result == ""
-

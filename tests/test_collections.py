@@ -180,7 +180,9 @@ class TestComposerSessionCollection:
     def test_filter_by_extension(self, sample_tracking_entries):
         """Test filtering by extension."""
         sessions = [
-            ComposerSession.from_entries("comp_001", [sample_tracking_entries[0], sample_tracking_entries[1]]),
+            ComposerSession.from_entries(
+                "comp_001", [sample_tracking_entries[0], sample_tracking_entries[1]]
+            ),
             ComposerSession.from_entries("comp_002", [sample_tracking_entries[2]]),
         ]
         collection = ComposerSessionCollection(sessions)
@@ -275,4 +277,3 @@ class TestBubbleCollection:
         groups = collection.group_by_model()
         assert "gpt-4" in groups
         assert len(groups["gpt-4"]) == 1
-

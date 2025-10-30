@@ -16,14 +16,17 @@ class TestQueryBuilder:
         builder = QueryBuilder(mock_client)
         assert builder._client == mock_client
 
-    @pytest.mark.parametrize("query_method", [
-        "bubbles",
-        "composer_sessions",
-        "tracking_entries",
-        "checkpoints",
-        "message_contexts",
-        "composer_data",
-    ])
+    @pytest.mark.parametrize(
+        "query_method",
+        [
+            "bubbles",
+            "composer_sessions",
+            "tracking_entries",
+            "checkpoints",
+            "message_contexts",
+            "composer_data",
+        ],
+    )
     def test_query_methods(self, mock_client, query_method):
         """Test all query methods return valid query objects."""
         query_builder = mock_client.query()
@@ -42,12 +45,15 @@ class TestBaseQuery:
         query = mock_client.query().bubbles().limit(10)
         assert query._limit == 10
 
-    @pytest.mark.parametrize("limit,expected", [
-        (0, 0),
-        (10, 10),
-        (100, 100),
-        (-1, -1),  # Negative limit accepted but may have special meaning
-    ])
+    @pytest.mark.parametrize(
+        "limit,expected",
+        [
+            (0, 0),
+            (10, 10),
+            (100, 100),
+            (-1, -1),  # Negative limit accepted but may have special meaning
+        ],
+    )
     def test_limit_various_values(self, mock_client, limit, expected):
         """Test setting limit with various values."""
         query = mock_client.query().bubbles().limit(limit)
@@ -58,13 +64,18 @@ class TestBaseQuery:
         query = mock_client.query().bubbles().offset(5)
         assert query._offset == 5
 
-    @pytest.mark.parametrize("page,page_size,expected_offset,expected_limit", [
-        (1, 10, 0, 10),      # First page
-        (2, 10, 10, 10),      # Second page
-        (3, 20, 40, 20),      # Third page with size 20
-        (0, 10, -10, 10),     # Page 0 should result in negative offset
-    ])
-    def test_page_various_values(self, mock_client, page, page_size, expected_offset, expected_limit):
+    @pytest.mark.parametrize(
+        "page,page_size,expected_offset,expected_limit",
+        [
+            (1, 10, 0, 10),  # First page
+            (2, 10, 10, 10),  # Second page
+            (3, 20, 40, 20),  # Third page with size 20
+            (0, 10, -10, 10),  # Page 0 should result in negative offset
+        ],
+    )
+    def test_page_various_values(
+        self, mock_client, page, page_size, expected_offset, expected_limit
+    ):
         """Test pagination with various values."""
         query = mock_client.query().bubbles().page(page, page_size)
         assert query._offset == expected_offset
@@ -110,9 +121,7 @@ class TestBubbleQuery:
 
     def test_where_token_filters(self, mock_client):
         """Test where with token filters."""
-        query = mock_client.query().bubbles().where(
-            min_input_tokens=100, min_output_tokens=50
-        )
+        query = mock_client.query().bubbles().where(min_input_tokens=100, min_output_tokens=50)
         assert len(query._filters) > 0
 
     def test_where_has_code_blocks(self, mock_client):
@@ -257,4 +266,3 @@ class TestQueryChaining:
         assert query._offset == 20
         assert query._limit == 20
         assert len(query._filters) > 0
-

@@ -15,13 +15,16 @@ from cursordata.utils import decode_json_value, parse_key_pattern
 class TestEdgeCases:
     """Tests for edge cases and error conditions."""
 
-    @pytest.mark.parametrize("input_value,expected", [
-        (b"{invalid json}", None),
-        (b"", None),
-        (b'\xff\xfe\x00', None),  # Invalid UTF-8 bytes
-        (None, None),
-        ("", None),
-    ])
+    @pytest.mark.parametrize(
+        "input_value,expected",
+        [
+            (b"{invalid json}", None),
+            (b"", None),
+            (b"\xff\xfe\x00", None),  # Invalid UTF-8 bytes
+            (None, None),
+            ("", None),
+        ],
+    )
     def test_decode_json_invalid_inputs(self, input_value, expected):
         """Test decoding invalid JSON inputs."""
         result = decode_json_value(input_value)
@@ -30,7 +33,7 @@ class TestEdgeCases:
     def test_decode_json_non_utf8_bytes(self):
         """Test decoding non-UTF8 bytes."""
         # Try to decode bytes that aren't valid UTF-8
-        invalid_utf8 = b'\xff\xfe\x00'
+        invalid_utf8 = b"\xff\xfe\x00"
         result = decode_json_value(invalid_utf8)
         # Should handle gracefully by returning None
         assert result is None, f"Expected None for invalid UTF-8, got {result}"
@@ -208,8 +211,9 @@ class TestTypeCoercion:
         stats = mock_client.get_usage_stats()
         # Should handle None or datetime - verify it's one or the other, not something else
         if stats.tracking_start_time is not None:
-            assert isinstance(stats.tracking_start_time, datetime), \
-                f"Expected datetime or None, got {type(stats.tracking_start_time)}"
+            assert isinstance(
+                stats.tracking_start_time, datetime
+            ), f"Expected datetime or None, got {type(stats.tracking_start_time)}"
 
     def test_get_value_bytes_vs_string(self, mock_client):
         """Test that get_value returns bytes."""
@@ -223,8 +227,9 @@ class TestTypeCoercion:
         json_value = mock_client.get_json_value(ItemTableKey.AI_CODE_TRACKING_LINES)
         # Should be dict or list (since we have test data in mock_db)
         assert json_value is not None, "Expected JSON value to exist in test database"
-        assert isinstance(json_value, (dict, list)), \
-            f"Expected dict or list, got {type(json_value)}"
+        assert isinstance(
+            json_value, (dict, list)
+        ), f"Expected dict or list, got {type(json_value)}"
         # Verify it's actually a list (based on test data structure)
         assert isinstance(json_value, list), "Expected list of tracking entries"
 
@@ -260,10 +265,11 @@ class TestBoundaryConditions:
         result = parse_key_pattern(long_key, pattern)
         # Should handle long patterns - either match correctly or return None
         if result is not None:
-            assert isinstance(result, dict), f"Expected dict when pattern matches, got {type(result)}"
+            assert isinstance(
+                result, dict
+            ), f"Expected dict when pattern matches, got {type(result)}"
             # Verify it parsed all parts
             assert len(result) == 100, f"Expected 100 parsed parts, got {len(result)}"
         else:
             # If None, that's acceptable for very long patterns
             pass
-

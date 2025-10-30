@@ -168,6 +168,7 @@ class BubbleQuery(BaseQuery):
                     return False
                 try:
                     from dateutil.parser import parse as parse_date
+
                     created = parse_date(conv.created_at)
                 except Exception:
                     return False
@@ -207,7 +208,9 @@ class BubbleQuery(BaseQuery):
         if has_diffs is not None:
 
             def diff_filter(conv: "BubbleConversation") -> bool:
-                has = len(conv.assistant_suggested_diffs) > 0 or len(conv.diffs_since_last_apply) > 0
+                has = (
+                    len(conv.assistant_suggested_diffs) > 0 or len(conv.diffs_since_last_apply) > 0
+                )
                 return has == has_diffs
 
             self.filter(diff_filter)
@@ -215,10 +218,7 @@ class BubbleQuery(BaseQuery):
         if has_lint_errors is not None:
 
             def lint_filter(conv: "BubbleConversation") -> bool:
-                has = (
-                    len(conv.lints) > 0
-                    or len(conv.multi_file_linter_errors) > 0
-                )
+                has = len(conv.lints) > 0 or len(conv.multi_file_linter_errors) > 0
                 return has == has_lint_errors
 
             self.filter(lint_filter)
@@ -241,10 +241,14 @@ class BubbleQuery(BaseQuery):
         from cursordata.collections import BubbleCollection
         from cursordata.cursordiskkv_models import BubbleConversation
 
-        def factory(data: dict[str, Any], key_parts: Optional[dict[str, str]] = None) -> Optional[BubbleConversation]:
-            bubble_id_val = key_parts.get('bubble_id') if key_parts else None
-            conversation_id = key_parts.get('conversation_id') if key_parts else None
-            return BubbleConversation.from_dict(data, bubble_id=bubble_id_val, conversation_id=conversation_id)
+        def factory(
+            data: dict[str, Any], key_parts: Optional[dict[str, str]] = None
+        ) -> Optional[BubbleConversation]:
+            bubble_id_val = key_parts.get("bubble_id") if key_parts else None
+            conversation_id = key_parts.get("conversation_id") if key_parts else None
+            return BubbleConversation.from_dict(
+                data, bubble_id=bubble_id_val, conversation_id=conversation_id
+            )
 
         bubbles = self._client._query_cursordiskkv(
             key_prefix="bubbleId:",
@@ -437,7 +441,9 @@ class CheckpointQuery(BaseQuery):
         """
         from cursordata.cursordiskkv_models import Checkpoint
 
-        def factory(data: dict[str, Any], key_parts: Optional[dict[str, str]] = None) -> Optional[Checkpoint]:
+        def factory(
+            data: dict[str, Any], key_parts: Optional[dict[str, str]] = None
+        ) -> Optional[Checkpoint]:
             return Checkpoint.from_dict(data)
 
         checkpoints = self._client._query_cursordiskkv(
@@ -484,7 +490,9 @@ class MessageContextQuery(BaseQuery):
         """
         from cursordata.cursordiskkv_models import MessageRequestContext
 
-        def factory(data: dict[str, Any], key_parts: Optional[dict[str, str]] = None) -> Optional[MessageRequestContext]:
+        def factory(
+            data: dict[str, Any], key_parts: Optional[dict[str, str]] = None
+        ) -> Optional[MessageRequestContext]:
             return MessageRequestContext.from_dict(data)
 
         contexts = self._client._query_cursordiskkv(
@@ -530,7 +538,9 @@ class ComposerDataQuery(BaseQuery):
         """
         from cursordata.cursordiskkv_models import ComposerData
 
-        def factory(data: dict[str, Any], key_parts: Optional[dict[str, str]] = None) -> Optional[ComposerData]:
+        def factory(
+            data: dict[str, Any], key_parts: Optional[dict[str, str]] = None
+        ) -> Optional[ComposerData]:
             return ComposerData.from_dict(data)
 
         composer_data = self._client._query_cursordiskkv(
@@ -547,4 +557,3 @@ class ComposerDataQuery(BaseQuery):
             composer_data = [c for c in composer_data if c and filter_func(c)]
 
         return composer_data
-

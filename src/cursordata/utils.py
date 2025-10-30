@@ -116,7 +116,9 @@ def map_dict_to_model(data: dict[str, Any], field_mapping: dict[str, str]) -> di
     return result
 
 
-def auto_map_camel_to_snake(data: dict[str, Any], known_fields: Optional[dict[str, str]] = None) -> tuple:
+def auto_map_camel_to_snake(
+    data: dict[str, Any], known_fields: Optional[dict[str, str]] = None
+) -> tuple:
     """Automatically map camelCase keys to snake_case, handling known special cases.
 
     Args:
@@ -216,4 +218,3 @@ def parse_cursordiskkv_rows(
         logger.debug(f"Parsed {len(results)}/{len(rows)} rows successfully, {len(errors)} errors")
 
     return results
-

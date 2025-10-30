@@ -54,7 +54,9 @@ class Collection(Generic[T]):
         """
         return self.__class__([item for item in self._items if predicate(item)])
 
-    def sort(self, key: Optional[Callable[[T], Any]] = None, reverse: bool = False) -> "Collection[T]":
+    def sort(
+        self, key: Optional[Callable[[T], Any]] = None, reverse: bool = False
+    ) -> "Collection[T]":
         """Sort items in the collection.
 
         Args:
@@ -177,6 +179,7 @@ class BubbleCollection(Collection["BubbleConversation"]):
 
             try:
                 from dateutil.parser import parse as parse_date
+
                 created = parse_date(conv.created_at)
 
                 # Handle timezone-aware vs naive datetime comparison
@@ -245,8 +248,7 @@ class BubbleCollection(Collection["BubbleConversation"]):
     def with_lint_errors(self) -> "BubbleCollection":
         """Filter bubbles that have lint errors."""
         return self.filter(
-            lambda conv: len(conv.lints) > 0
-            or len(conv.multi_file_linter_errors) > 0
+            lambda conv: len(conv.lints) > 0 or len(conv.multi_file_linter_errors) > 0
         )
 
     def agentic_only(self) -> "BubbleCollection":
@@ -265,6 +267,7 @@ class BubbleCollection(Collection["BubbleConversation"]):
                 return "unknown"
             try:
                 from dateutil.parser import parse as parse_date
+
                 created = parse_date(conv.created_at)
                 return created.strftime("%Y-%m-%d")
             except Exception:
@@ -297,11 +300,11 @@ class ComposerSessionCollection(Collection["ComposerSession"]):
         Returns:
             Filtered collection.
         """
-        return self.filter(
-            lambda session: extension in session.file_extensions
-        )
+        return self.filter(lambda session: extension in session.file_extensions)
 
-    def filter_by_file_count(self, min_files: Optional[int] = None, max_files: Optional[int] = None) -> "ComposerSessionCollection":
+    def filter_by_file_count(
+        self, min_files: Optional[int] = None, max_files: Optional[int] = None
+    ) -> "ComposerSessionCollection":
         """Filter sessions by number of files modified.
 
         Args:
@@ -398,4 +401,3 @@ class AICodeTrackingCollection(Collection["AICodeTrackingEntry"]):
             return entry.file_extension or "unknown"
 
         return self.group_by(key_func)
-

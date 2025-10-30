@@ -93,9 +93,7 @@ class CursorDataClient:
     def _get_connection(self) -> sqlite3.Connection:
         """Get or create a database connection."""
         if self._connection is None:
-            self._connection = sqlite3.connect(
-                str(self.db_path), check_same_thread=False
-            )
+            self._connection = sqlite3.connect(str(self.db_path), check_same_thread=False)
             self._connection.row_factory = sqlite3.Row
         return self._connection
 
@@ -343,8 +341,17 @@ class CursorDataClient:
         ]
         return ComposerSessionCollection(sessions)
 
-
-    def get_cursordiskkv_entry(self, key: str) -> Optional[Union[BubbleConversation, MessageRequestContext, Checkpoint, CodeBlockDiff, ComposerData, InlineDiffs, dict[str, Any]]]:
+    def get_cursordiskkv_entry(self, key: str) -> Optional[
+        Union[
+            BubbleConversation,
+            MessageRequestContext,
+            Checkpoint,
+            CodeBlockDiff,
+            ComposerData,
+            InlineDiffs,
+            dict[str, Any],
+        ]
+    ]:
         """Get a specific cursorDiskKV entry by key.
 
         Args:
@@ -374,7 +381,9 @@ class CursorDataClient:
             key_parts = parse_key_pattern(key, "bubbleId:{bubble_id}:{conversation_id}")
             bubble_id = key_parts.get("bubble_id") if key_parts else None
             conversation_id = key_parts.get("conversation_id") if key_parts else None
-            return BubbleConversation.from_dict(data, bubble_id=bubble_id, conversation_id=conversation_id)
+            return BubbleConversation.from_dict(
+                data, bubble_id=bubble_id, conversation_id=conversation_id
+            )
         elif key.startswith("messageRequestContext:"):
             return MessageRequestContext.from_dict(data)
         elif key.startswith("checkpointId:"):
@@ -425,4 +434,3 @@ class CursorDataClient:
         cursor.execute(f"SELECT key FROM {table}")
         for row in cursor:
             yield row[0]
-

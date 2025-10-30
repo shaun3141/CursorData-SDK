@@ -45,10 +45,7 @@ class TestFullQueryFlow:
                 "isAgentic": bubble.is_agentic,
             }
             value = json.dumps(bubble_dict)
-            cursor.execute(
-                "INSERT INTO cursorDiskKV (key, value) VALUES (?, ?)",
-                (key, value)
-            )
+            cursor.execute("INSERT INTO cursorDiskKV (key, value) VALUES (?, ?)", (key, value))
         conn.commit()
 
         # Execute query
@@ -58,7 +55,7 @@ class TestFullQueryFlow:
         assert results is not None
         assert isinstance(results, BubbleCollection)
         assert len(results) == 5
-        assert all(hasattr(r, 'bubble_id') for r in results)
+        assert all(hasattr(r, "bubble_id") for r in results)
 
         client.close()
 
@@ -78,7 +75,7 @@ class TestFullQueryFlow:
         tracking_data = [{"hash": e.hash, "metadata": e.metadata} for e in entries]
         cursor.execute(
             "INSERT INTO ItemTable (key, value) VALUES (?, ?)",
-            (ItemTableKey.AI_CODE_TRACKING_LINES.value, json.dumps(tracking_data).encode("utf-8"))
+            (ItemTableKey.AI_CODE_TRACKING_LINES.value, json.dumps(tracking_data).encode("utf-8")),
         )
         conn.commit()
 
@@ -131,10 +128,7 @@ class TestFullQueryFlow:
         for bubble_dict in [bubble1_dict, bubble2_dict]:
             key = f"bubbleId:{bubble_dict['bubbleId']}:conv_001"
             value = json.dumps(bubble_dict)
-            cursor.execute(
-                "INSERT INTO cursorDiskKV (key, value) VALUES (?, ?)",
-                (key, value)
-            )
+            cursor.execute("INSERT INTO cursorDiskKV (key, value) VALUES (?, ?)", (key, value))
         conn.commit()
 
         # Query with filter
@@ -172,10 +166,7 @@ class TestFullQueryFlow:
             }
             key = f"bubbleId:bubble_{i:03d}:conv_{i:03d}"
             value = json.dumps(bubble_dict)
-            cursor.execute(
-                "INSERT INTO cursorDiskKV (key, value) VALUES (?, ?)",
-                (key, value)
-            )
+            cursor.execute("INSERT INTO cursorDiskKV (key, value) VALUES (?, ?)", (key, value))
         conn.commit()
 
         # Execute chained query
@@ -208,13 +199,13 @@ class TestCollectionOperations:
 
         # Insert test data
         entries = TrackingEntryFactory.create_batch(
-            5,
-            metadata={"source": "composer", "fileExtension": ".py"}
+            5, metadata={"source": "composer", "fileExtension": ".py"}
         )
-        entries.extend(TrackingEntryFactory.create_batch(
-            3,
-            metadata={"source": "chat", "fileExtension": ".ts"}
-        ))
+        entries.extend(
+            TrackingEntryFactory.create_batch(
+                3, metadata={"source": "chat", "fileExtension": ".ts"}
+            )
+        )
 
         conn = client._get_connection()
         cursor = conn.cursor()
@@ -223,7 +214,7 @@ class TestCollectionOperations:
         tracking_data = [{"hash": e.hash, "metadata": e.metadata} for e in entries]
         cursor.execute(
             "INSERT INTO ItemTable (key, value) VALUES (?, ?)",
-            (ItemTableKey.AI_CODE_TRACKING_LINES.value, json.dumps(tracking_data).encode("utf-8"))
+            (ItemTableKey.AI_CODE_TRACKING_LINES.value, json.dumps(tracking_data).encode("utf-8")),
         )
         conn.commit()
 
@@ -235,4 +226,3 @@ class TestCollectionOperations:
         assert all(e.source == "composer" for e in filtered)
 
         client.close()
-

@@ -217,7 +217,9 @@ class BubbleConversation:
     _raw_data: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any], bubble_id: str | None = None, conversation_id: str | None = None) -> BubbleConversation:
+    def from_dict(
+        cls, data: dict[str, Any], bubble_id: str | None = None, conversation_id: str | None = None
+    ) -> BubbleConversation:
         """Create a BubbleConversation from a dictionary.
 
         Args:
@@ -232,47 +234,47 @@ class BubbleConversation:
         kwargs, raw_data = auto_map_camel_to_snake(data)
 
         # Handle model_info - if modelName was auto-converted, move it to model_info dict
-        if 'model_name' in kwargs and 'model_info' not in kwargs:
-            kwargs['model_info'] = {'modelName': kwargs.pop('model_name')}
-        elif 'model_info' in kwargs and isinstance(kwargs['model_info'], dict):
+        if "model_name" in kwargs and "model_info" not in kwargs:
+            kwargs["model_info"] = {"modelName": kwargs.pop("model_name")}
+        elif "model_info" in kwargs and isinstance(kwargs["model_info"], dict):
             # Ensure model_info has modelName key
-            if 'model_name' in kwargs['model_info']:
-                kwargs['model_info']['modelName'] = kwargs['model_info'].pop('model_name')
+            if "model_name" in kwargs["model_info"]:
+                kwargs["model_info"]["modelName"] = kwargs["model_info"].pop("model_name")
 
         # Handle token_count - if inputTokens/outputTokens were auto-converted, move to token_count dict
-        if 'token_count' not in kwargs or not isinstance(kwargs.get('token_count'), dict):
-            kwargs['token_count'] = {}
-        if 'input_tokens' in kwargs:
-            kwargs['token_count']['inputTokens'] = kwargs.pop('input_tokens')
-        if 'output_tokens' in kwargs:
-            kwargs['token_count']['outputTokens'] = kwargs.pop('output_tokens')
+        if "token_count" not in kwargs or not isinstance(kwargs.get("token_count"), dict):
+            kwargs["token_count"] = {}
+        if "input_tokens" in kwargs:
+            kwargs["token_count"]["inputTokens"] = kwargs.pop("input_tokens")
+        if "output_tokens" in kwargs:
+            kwargs["token_count"]["outputTokens"] = kwargs.pop("output_tokens")
 
         # Override with provided IDs (from key parsing)
         if bubble_id:
-            kwargs['bubble_id'] = bubble_id
+            kwargs["bubble_id"] = bubble_id
         if conversation_id:
             # Store conversation_id in raw_data since it's not a dataclass field
-            raw_data['conversation_id'] = conversation_id
+            raw_data["conversation_id"] = conversation_id
 
-        kwargs['_raw_data'] = raw_data
+        kwargs["_raw_data"] = raw_data
 
         return cls(**kwargs)
 
     @property
     def input_tokens(self) -> int | None:
         """Get the number of input tokens."""
-        return self.token_count.get('inputTokens')
+        return self.token_count.get("inputTokens")
 
     @property
     def output_tokens(self) -> int | None:
         """Get the number of output tokens."""
-        return self.token_count.get('outputTokens')
+        return self.token_count.get("outputTokens")
 
     @property
     def model_name(self) -> str | None:
         """Get the model name used for this conversation."""
         if self.model_info:
-            return self.model_info.get('modelName')
+            return self.model_info.get("modelName")
         return None
 
     # Property groups for organized access
@@ -280,36 +282,42 @@ class BubbleConversation:
     def code(self) -> CodeGroup:
         """Access all code-related fields."""
         from cursordata.model_groups import CodeGroup
+
         return CodeGroup(self)
 
     @property
     def context_group(self) -> ContextGroup:
         """Access all context-related fields."""
         from cursordata.model_groups import ContextGroup
+
         return ContextGroup(self)
 
     @property
     def metadata(self) -> MetadataGroup:
         """Access metadata fields."""
         from cursordata.model_groups import MetadataGroup
+
         return MetadataGroup(self)
 
     @property
     def linting(self) -> LintingGroup:
         """Access linting-related fields."""
         from cursordata.model_groups import LintingGroup
+
         return LintingGroup(self)
 
     @property
     def version_control(self) -> VersionControlGroup:
         """Access version control-related fields."""
         from cursordata.model_groups import VersionControlGroup
+
         return VersionControlGroup(self)
 
     @property
     def tools(self) -> ToolGroup:
         """Access tool-related fields."""
         from cursordata.model_groups import ToolGroup
+
         return ToolGroup(self)
 
 
@@ -353,7 +361,7 @@ class MessageRequestContext:
     def from_dict(cls, data: dict[str, Any]) -> MessageRequestContext:
         """Create a MessageRequestContext from a dictionary."""
         kwargs, raw_data = auto_map_camel_to_snake(data)
-        kwargs['_raw_data'] = raw_data
+        kwargs["_raw_data"] = raw_data
         return cls(**kwargs)
 
 
@@ -385,7 +393,7 @@ class Checkpoint:
     def from_dict(cls, data: dict[str, Any]) -> Checkpoint:
         """Create a Checkpoint from a dictionary."""
         kwargs, raw_data = auto_map_camel_to_snake(data)
-        kwargs['_raw_data'] = raw_data
+        kwargs["_raw_data"] = raw_data
         return cls(**kwargs)
 
 
@@ -411,7 +419,7 @@ class CodeBlockDiff:
     def from_dict(cls, data: dict[str, Any]) -> CodeBlockDiff:
         """Create a CodeBlockDiff from a dictionary."""
         kwargs, raw_data = auto_map_camel_to_snake(data)
-        kwargs['_raw_data'] = raw_data
+        kwargs["_raw_data"] = raw_data
         return cls(**kwargs)
 
 
@@ -463,7 +471,7 @@ class ComposerData:
     def from_dict(cls, data: dict[str, Any]) -> ComposerData:
         """Create a ComposerData from a dictionary."""
         kwargs, raw_data = auto_map_camel_to_snake(data)
-        kwargs['_raw_data'] = raw_data
+        kwargs["_raw_data"] = raw_data
         return cls(**kwargs)
 
 
@@ -486,4 +494,3 @@ class InlineDiffs:
     def from_dict(cls, workspace_id: str, data: dict[str, Any]) -> InlineDiffs:
         """Create an InlineDiffs from a dictionary."""
         return cls(workspace_id=workspace_id, data=data)
-

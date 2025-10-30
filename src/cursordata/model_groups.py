@@ -303,11 +303,7 @@ class VersionControlGroup:
 
     def has_vcs_info(self) -> bool:
         """Check if there is any version control information."""
-        return (
-            len(self.commits) > 0
-            or len(self.pull_requests) > 0
-            or len(self.git_diffs) > 0
-        )
+        return len(self.commits) > 0 or len(self.pull_requests) > 0 or len(self.git_diffs) > 0
 
 
 @dataclass
@@ -353,4 +349,3 @@ class ToolGroup:
             or len(self.interpreter_results) > 0
             or len(self.tool_results) > 0
         )
-

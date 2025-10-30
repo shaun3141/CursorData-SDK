@@ -81,7 +81,9 @@ def sample_tracking_entries() -> list[AICodeTrackingEntry]:
 
 
 @pytest.fixture
-def sample_composer_session_data(sample_tracking_entries: list[AICodeTrackingEntry]) -> ComposerSession:
+def sample_composer_session_data(
+    sample_tracking_entries: list[AICodeTrackingEntry],
+) -> ComposerSession:
     """Sample ComposerSession."""
     entries_001 = [e for e in sample_tracking_entries if e.composer_id == "comp_001"]
     return ComposerSession.from_entries("comp_001", entries_001)
@@ -160,12 +162,18 @@ def mock_db_connection(mock_db_path: Path):
 
     cursor.execute(
         "INSERT INTO ItemTable (key, value) VALUES (?, ?)",
-        (ItemTableKey.AI_CODE_TRACKING_LINES.value, json.dumps(sample_tracking_data).encode("utf-8")),
+        (
+            ItemTableKey.AI_CODE_TRACKING_LINES.value,
+            json.dumps(sample_tracking_data).encode("utf-8"),
+        ),
     )
 
     cursor.execute(
         "INSERT INTO ItemTable (key, value) VALUES (?, ?)",
-        (ItemTableKey.AI_CODE_TRACKING_SCORED_COMMITS.value, json.dumps(["commit1", "commit2"]).encode("utf-8")),
+        (
+            ItemTableKey.AI_CODE_TRACKING_SCORED_COMMITS.value,
+            json.dumps(["commit1", "commit2"]).encode("utf-8"),
+        ),
     )
 
     cursor.execute(
@@ -212,6 +220,7 @@ def mock_client(mock_db_path: Path, mock_db_connection):
 @pytest.fixture
 def mock_platform(monkeypatch):
     """Mock platform.system() to return a specific platform."""
+
     def _mock_platform(system_name: str = "Darwin"):
         """Create a platform mock."""
         original_system = __import__("platform").system
@@ -253,4 +262,3 @@ def empty_db_connection(tmp_path: Path):
     yield conn
 
     conn.close()
-

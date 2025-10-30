@@ -52,9 +52,7 @@ class TestCursorDataClientInit:
         db_path = tmp_path / "windows_db.db"
         db_path.touch()
 
-        with patch.object(
-            CursorDataClient, "_find_database", return_value=db_path
-        ):
+        with patch.object(CursorDataClient, "_find_database", return_value=db_path):
             client = CursorDataClient()
             assert client.db_path == db_path
 
@@ -67,9 +65,7 @@ class TestCursorDataClientInit:
         db_path = tmp_path / "linux_db.db"
         db_path.touch()
 
-        with patch.object(
-            CursorDataClient, "_find_database", return_value=db_path
-        ):
+        with patch.object(CursorDataClient, "_find_database", return_value=db_path):
             client = CursorDataClient()
             assert client.db_path == db_path
 
@@ -99,8 +95,9 @@ class TestCursorDataClientContextManager:
             assert isinstance(client, CursorDataClient)
 
         # Connection should be closed after context
-        assert mock_client._connection is None or mock_client._connection.closed, \
-            "Connection should be closed after context manager exits"
+        assert (
+            mock_client._connection is None or mock_client._connection.closed
+        ), "Connection should be closed after context manager exits"
 
     def test_context_manager_with_exception(self, mock_client):
         """Test context manager closes connection on exception."""
@@ -111,8 +108,9 @@ class TestCursorDataClientContextManager:
             pass
 
         # Connection should be closed even when exception occurs
-        assert mock_client._connection is None or mock_client._connection.closed, \
-            "Connection should be closed even when exception occurs in context"
+        assert (
+            mock_client._connection is None or mock_client._connection.closed
+        ), "Connection should be closed even when exception occurs in context"
 
 
 @pytest.mark.unit
@@ -196,8 +194,9 @@ class TestCursorDataClientTrackingMethods:
         start_time = mock_client.get_ai_code_tracking_start_time()
         # Should return a value or None - verify it's one of the expected types
         if start_time is not None:
-            assert isinstance(start_time, (bytes, str, float)), \
-                f"Expected bytes, str, or float, got {type(start_time)}"
+            assert isinstance(
+                start_time, (bytes, str, float)
+            ), f"Expected bytes, str, or float, got {type(start_time)}"
 
     def test_get_ai_scored_commits(self, mock_client):
         """Test getting scored commits."""
@@ -290,7 +289,9 @@ class TestCursorDataClientCursorDiskKVMethods:
         def factory(data, key_parts=None):
             bubble_id = key_parts.get("bubble_id") if key_parts else None
             conversation_id = key_parts.get("conversation_id") if key_parts else None
-            return BubbleConversation.from_dict(data, bubble_id=bubble_id, conversation_id=conversation_id)
+            return BubbleConversation.from_dict(
+                data, bubble_id=bubble_id, conversation_id=conversation_id
+            )
 
         results = mock_client._query_cursordiskkv(
             key_prefix="bubbleId:",
@@ -305,6 +306,5 @@ class TestCursorDataClientCursorDiskKVMethods:
         # Should return model or dict or None
         # The entry exists in mock_db, so it should return a BubbleConversation
         assert entry is not None
-        if hasattr(entry, 'bubble_id'):
+        if hasattr(entry, "bubble_id"):
             assert entry.bubble_id == "bubble_001"
-

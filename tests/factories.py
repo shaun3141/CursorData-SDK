@@ -45,7 +45,9 @@ class ComposerSessionFactory:
     """Factory for creating ComposerSession test objects."""
 
     @staticmethod
-    def create(composer_id: str = "comp_001", entries: Optional[list[AICodeTrackingEntry]] = None, **kwargs) -> ComposerSession:
+    def create(
+        composer_id: str = "comp_001", entries: Optional[list[AICodeTrackingEntry]] = None, **kwargs
+    ) -> ComposerSession:
         """Create a composer session with default or custom values."""
         if entries is None:
             entries = TrackingEntryFactory.create_batch(2, metadata={"composerId": composer_id})
@@ -96,4 +98,3 @@ class BubbleConversationFactory:
             }
             bubbles.append(BubbleConversationFactory.create(**bubble_data))
         return bubbles
-

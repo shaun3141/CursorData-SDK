@@ -208,9 +208,7 @@ class TestVersionControlGroup:
 
     def test_has_vcs_info_with_info(self):
         """Test has_vcs_info returns True when VCS info exists."""
-        bubble = BubbleConversationFactory.create(
-            commits=[{"sha": "abc123"}]
-        )
+        bubble = BubbleConversationFactory.create(commits=[{"sha": "abc123"}])
         vcs_group = VersionControlGroup(bubble)
         assert vcs_group.has_vcs_info() is True
 
@@ -231,17 +229,13 @@ class TestToolGroup:
 
     def test_terminal_files_property(self):
         """Test accessing terminal files."""
-        bubble = BubbleConversationFactory.create(
-            terminalFiles=[{"file": "test.py"}]
-        )
+        bubble = BubbleConversationFactory.create(terminalFiles=[{"file": "test.py"}])
         tool_group = ToolGroup(bubble)
         assert len(tool_group.terminal_files) == 1
 
     def test_has_tool_usage_with_usage(self):
         """Test has_tool_usage returns True when tools were used."""
-        bubble = BubbleConversationFactory.create(
-            terminalFiles=[{"file": "test.py"}]
-        )
+        bubble = BubbleConversationFactory.create(terminalFiles=[{"file": "test.py"}])
         tool_group = ToolGroup(bubble)
         assert tool_group.has_tool_usage() is True
 
@@ -257,9 +251,6 @@ class TestToolGroup:
 
     def test_has_previous_terminal_command(self):
         """Test has_previous_terminal_command property."""
-        bubble = BubbleConversationFactory.create(
-            existedPreviousTerminalCommand=True
-        )
+        bubble = BubbleConversationFactory.create(existedPreviousTerminalCommand=True)
         tool_group = ToolGroup(bubble)
         assert tool_group.has_previous_terminal_command is True
-

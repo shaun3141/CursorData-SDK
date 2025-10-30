@@ -96,6 +96,7 @@ class TestQueryErrorHandling:
 
     def test_query_execute_with_invalid_filter(self, mock_client):
         """Test query execution with invalid filter function."""
+
         # Filter that raises an exception
         def bad_filter(x):
             raise ValueError("Filter error")
@@ -139,10 +140,12 @@ class TestModelErrorHandling:
         assert bubble is not None
 
         # Invalid date format should be handled
-        bubble = BubbleConversation.from_dict({
-            "createdAt": "not-a-date",
-            "bubbleId": "test",
-        })
+        bubble = BubbleConversation.from_dict(
+            {
+                "createdAt": "not-a-date",
+                "bubbleId": "test",
+            }
+        )
         assert bubble.created_at == "not-a-date"  # Stored as-is, parsing happens in property
 
 
@@ -187,4 +190,3 @@ class TestCollectionErrorHandling:
         # Filter should propagate exception
         with pytest.raises(ValueError, match="Filter error"):
             collection.filter(bad_filter)
-

@@ -240,6 +240,7 @@ class TestParseCursordiskkvRows:
 
     def test_parse_valid_rows(self):
         """Test parsing valid cursorDiskKV rows."""
+
         class MockRow:
             def __getitem__(self, key):
                 if key == "key":
@@ -258,6 +259,7 @@ class TestParseCursordiskkvRows:
 
     def test_parse_invalid_json(self):
         """Test parsing rows with invalid JSON."""
+
         class MockRow:
             def __getitem__(self, key):
                 if key == "key":
@@ -276,6 +278,7 @@ class TestParseCursordiskkvRows:
 
     def test_parse_non_dict_json(self):
         """Test parsing rows with non-dict JSON."""
+
         class MockRow:
             def __getitem__(self, key):
                 if key == "key":
@@ -294,6 +297,7 @@ class TestParseCursordiskkvRows:
 
     def test_parse_with_key_parser(self):
         """Test parsing rows with custom key parser."""
+
         class MockRow:
             def __getitem__(self, key):
                 if key == "key":
@@ -313,4 +317,3 @@ class TestParseCursordiskkvRows:
         result = parse_cursordiskkv_rows(rows, factory, key_parser=key_parser)
         assert len(result) == 1
         assert result[0]["parts"] == {"bubble_id": "b1"}
-

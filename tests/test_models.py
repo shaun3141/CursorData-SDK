@@ -217,4 +217,3 @@ class TestDatabaseInfo:
         assert info.item_table_count == 100
         assert info.cursor_disk_kv_count == 50
         assert info.last_modified == last_modified
-

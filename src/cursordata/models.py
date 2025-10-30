@@ -104,7 +104,9 @@ class ComposerSession:
     entries_count: int = 0
 
     @classmethod
-    def from_entries(cls, composer_id: str, entries: list[AICodeTrackingEntry]) -> "ComposerSession":
+    def from_entries(
+        cls, composer_id: str, entries: list[AICodeTrackingEntry]
+    ) -> "ComposerSession":
         """Create a ComposerSession from a list of tracking entries."""
         files = list(set(e.file_name for e in entries if e.file_name))
         extensions = list(set(e.file_extension for e in entries if e.file_extension))
@@ -128,4 +130,3 @@ class DatabaseInfo:
     item_table_count: int = 0
     cursor_disk_kv_count: int = 0
     last_modified: Optional[datetime] = None
-
