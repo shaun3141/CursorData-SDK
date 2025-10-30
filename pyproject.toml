@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cursordata-sdk"
-version = "0.1.0"
+version = "0.2.0"
 description = "SDK for interacting with Cursor editor's local SQLite usage data database"
 readme = "README.md"
 readme-content-type = "text/markdown"
