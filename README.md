@@ -1,7 +1,8 @@
 # CursorData SDK
 
 [![Tests](https://github.com/shaun3141/CursorData-SDK/actions/workflows/test.yml/badge.svg)](https://github.com/shaun3141/CursorData-SDK/actions/workflows/test.yml)
-[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
+[![PyPI version](https://badge.fury.io/py/cursordata-sdk.svg)](https://badge.fury.io/py/cursordata-sdk)
+[![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Codecov](https://codecov.io/gh/shaun3141/CursorData-SDK/branch/main/graph/badge.svg)](https://codecov.io/gh/shaun3141/CursorData-SDK)
 
@@ -19,6 +20,8 @@ A well-documented Python SDK for interacting with the local SQLite database that
 
 ## Installation
 
+Install from PyPI:
+
 ```bash
 pip install cursordata-sdk
 ```
@@ -28,6 +31,8 @@ Or using `uv`:
 ```bash
 uv pip install cursordata-sdk
 ```
+
+📦 **Available on PyPI**: [https://pypi.org/project/cursordata-sdk/](https://pypi.org/project/cursordata-sdk/)
 
 ## Quick Start
 
