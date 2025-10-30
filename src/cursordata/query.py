@@ -1,7 +1,7 @@
 """Query builder for fluent API access to Cursor data."""
 
-from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING
+from datetime import datetime
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 if TYPE_CHECKING:
     from cursordata.client import CursorDataClient
@@ -13,9 +13,7 @@ if TYPE_CHECKING:
     from cursordata.cursordiskkv_models import (
         BubbleConversation,
         Checkpoint,
-        CodeBlockDiff,
         ComposerData,
-        InlineDiffs,
         MessageRequestContext,
     )
     from cursordata.models import AICodeTrackingEntry, ComposerSession
@@ -61,7 +59,7 @@ class BaseQuery:
         self._client = client
         self._limit: Optional[int] = None
         self._offset: int = 0
-        self._filters: List[Callable[[Any], bool]] = []
+        self._filters: list[Callable[[Any], bool]] = []
 
     def limit(self, n: int) -> "BaseQuery":
         """Set the maximum number of results.
@@ -162,7 +160,6 @@ class BubbleQuery(BaseQuery):
         Returns:
             Self for chaining.
         """
-        from cursordata.cursordiskkv_models import BubbleConversation
 
         if created_after or created_before:
 
@@ -243,9 +240,8 @@ class BubbleQuery(BaseQuery):
         """
         from cursordata.collections import BubbleCollection
         from cursordata.cursordiskkv_models import BubbleConversation
-        from cursordata.utils import parse_key_pattern
 
-        def factory(data: Dict[str, Any], key_parts: Optional[Dict[str, str]] = None) -> Optional[BubbleConversation]:
+        def factory(data: dict[str, Any], key_parts: Optional[dict[str, str]] = None) -> Optional[BubbleConversation]:
             bubble_id_val = key_parts.get('bubble_id') if key_parts else None
             conversation_id = key_parts.get('conversation_id') if key_parts else None
             return BubbleConversation.from_dict(data, bubble_id=bubble_id_val, conversation_id=conversation_id)
@@ -285,7 +281,6 @@ class ComposerSessionQuery(BaseQuery):
         Returns:
             Self for chaining.
         """
-        from cursordata.models import ComposerSession
 
         if file_extension:
 
@@ -321,7 +316,7 @@ class ComposerSessionQuery(BaseQuery):
         entries = self._client.get_ai_code_tracking_entries()
 
         # Group by composer_id
-        sessions_dict: Dict[str, List["AICodeTrackingEntry"]] = {}
+        sessions_dict: dict[str, list[AICodeTrackingEntry]] = {}
         for entry in entries:
             if entry.composer_id:
                 if entry.composer_id not in sessions_dict:
@@ -366,7 +361,6 @@ class TrackingQuery(BaseQuery):
         Returns:
             Self for chaining.
         """
-        from cursordata.models import AICodeTrackingEntry
 
         if source:
 
@@ -435,7 +429,7 @@ class CheckpointQuery(BaseQuery):
         self._bubble_id = bubble_id
         return self
 
-    def execute(self) -> List["Checkpoint"]:
+    def execute(self) -> list["Checkpoint"]:
         """Execute the query and return results.
 
         Returns:
@@ -443,7 +437,7 @@ class CheckpointQuery(BaseQuery):
         """
         from cursordata.cursordiskkv_models import Checkpoint
 
-        def factory(data: Dict[str, Any], key_parts: Optional[Dict[str, str]] = None) -> Optional[Checkpoint]:
+        def factory(data: dict[str, Any], key_parts: Optional[dict[str, str]] = None) -> Optional[Checkpoint]:
             return Checkpoint.from_dict(data)
 
         checkpoints = self._client._query_cursordiskkv(
@@ -482,7 +476,7 @@ class MessageContextQuery(BaseQuery):
         self._bubble_id = bubble_id
         return self
 
-    def execute(self) -> List["MessageRequestContext"]:
+    def execute(self) -> list["MessageRequestContext"]:
         """Execute the query and return results.
 
         Returns:
@@ -490,7 +484,7 @@ class MessageContextQuery(BaseQuery):
         """
         from cursordata.cursordiskkv_models import MessageRequestContext
 
-        def factory(data: Dict[str, Any], key_parts: Optional[Dict[str, str]] = None) -> Optional[MessageRequestContext]:
+        def factory(data: dict[str, Any], key_parts: Optional[dict[str, str]] = None) -> Optional[MessageRequestContext]:
             return MessageRequestContext.from_dict(data)
 
         contexts = self._client._query_cursordiskkv(
@@ -528,7 +522,7 @@ class ComposerDataQuery(BaseQuery):
         self._composer_id = composer_id
         return self
 
-    def execute(self) -> List["ComposerData"]:
+    def execute(self) -> list["ComposerData"]:
         """Execute the query and return results.
 
         Returns:
@@ -536,7 +530,7 @@ class ComposerDataQuery(BaseQuery):
         """
         from cursordata.cursordiskkv_models import ComposerData
 
-        def factory(data: Dict[str, Any], key_parts: Optional[Dict[str, str]] = None) -> Optional[ComposerData]:
+        def factory(data: dict[str, Any], key_parts: Optional[dict[str, str]] = None) -> Optional[ComposerData]:
             return ComposerData.from_dict(data)
 
         composer_data = self._client._query_cursordiskkv(

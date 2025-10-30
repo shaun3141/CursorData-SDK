@@ -1,14 +1,13 @@
 """Test utilities and helpers."""
 
-from typing import Any, Dict, List, Optional
-from dataclasses import dataclass, asdict
+from typing import Any, Optional
 
 import pytest
 
 
-def assert_dict_keys(d: Dict[str, Any], required_keys: List[str], optional_keys: Optional[List[str]] = None):
+def assert_dict_keys(d: dict[str, Any], required_keys: list[str], optional_keys: Optional[list[str]] = None):
     """Assert that a dictionary has required keys.
-    
+
     Args:
         d: Dictionary to check
         required_keys: List of keys that must be present
@@ -16,7 +15,7 @@ def assert_dict_keys(d: Dict[str, Any], required_keys: List[str], optional_keys:
     """
     for key in required_keys:
         assert key in d, f"Required key '{key}' missing from dictionary"
-    
+
     if optional_keys:
         all_keys = set(d.keys())
         expected_keys = set(required_keys + optional_keys)
@@ -27,7 +26,7 @@ def assert_dict_keys(d: Dict[str, Any], required_keys: List[str], optional_keys:
 
 def assert_type_or_none(value: Any, expected_type: type, message: Optional[str] = None):
     """Assert that value is either None or of expected type.
-    
+
     Args:
         value: Value to check
         expected_type: Expected type if value is not None
@@ -40,7 +39,7 @@ def assert_type_or_none(value: Any, expected_type: type, message: Optional[str] 
 
 def assert_collection_not_empty(collection, message: Optional[str] = None):
     """Assert that a collection is not empty.
-    
+
     Args:
         collection: Collection to check (must have __len__)
         message: Optional custom error message
@@ -51,7 +50,7 @@ def assert_collection_not_empty(collection, message: Optional[str] = None):
 
 def assert_collection_empty(collection, message: Optional[str] = None):
     """Assert that a collection is empty.
-    
+
     Args:
         collection: Collection to check (must have __len__)
         message: Optional custom error message
@@ -62,7 +61,7 @@ def assert_collection_empty(collection, message: Optional[str] = None):
 
 class DatabaseAssertions:
     """Helper class for database-related assertions."""
-    
+
     @staticmethod
     def assert_table_exists(connection, table_name: str):
         """Assert that a table exists in the database."""
@@ -73,7 +72,7 @@ class DatabaseAssertions:
         )
         result = cursor.fetchone()
         assert result is not None, f"Table '{table_name}' does not exist"
-    
+
     @staticmethod
     def assert_table_empty(connection, table_name: str):
         """Assert that a table is empty."""
@@ -81,7 +80,7 @@ class DatabaseAssertions:
         cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
         count = cursor.fetchone()[0]
         assert count == 0, f"Expected table '{table_name}' to be empty, got {count} rows"
-    
+
     @staticmethod
     def assert_table_has_rows(connection, table_name: str, min_rows: int = 1):
         """Assert that a table has at least min_rows rows."""
@@ -94,11 +93,11 @@ class DatabaseAssertions:
 
 class ModelAssertions:
     """Helper class for model-related assertions."""
-    
+
     @staticmethod
-    def assert_model_has_attributes(model, required_attrs: List[str]):
+    def assert_model_has_attributes(model, required_attrs: list[str]):
         """Assert that a model has required attributes.
-        
+
         Args:
             model: Model instance to check
             required_attrs: List of attribute names that must exist
@@ -106,11 +105,11 @@ class ModelAssertions:
         for attr in required_attrs:
             assert hasattr(model, attr), \
                 f"Model {type(model).__name__} missing required attribute '{attr}'"
-    
+
     @staticmethod
-    def assert_model_attributes_not_none(model, attrs: List[str]):
+    def assert_model_attributes_not_none(model, attrs: list[str]):
         """Assert that model attributes are not None.
-        
+
         Args:
             model: Model instance to check
             attrs: List of attribute names that should not be None

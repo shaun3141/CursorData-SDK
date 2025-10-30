@@ -1,9 +1,7 @@
 """Tests for edge cases and error handling."""
 
-import json
 import sqlite3
 from datetime import datetime
-from unittest.mock import Mock, patch
 
 import pytest
 
@@ -141,7 +139,7 @@ class TestErrorHandling:
         # Create a path that exists but isn't a database
         db_path = tmp_path / "not_a_db.txt"
         db_path.write_text("not a database")
-        
+
         # Client init will check if file exists, but connection will fail
         # SQLite will try to open it and may succeed (creating a new DB) or fail
         # So we test that connection doesn't raise unexpected errors
@@ -166,7 +164,7 @@ class TestErrorHandling:
             ("corrupted_key", b"not valid json{"),
         )
         mock_db_connection.commit()
-        
+
         # Should handle gracefully
         value = mock_client.get_json_value("corrupted_key")
         assert value is None
@@ -186,7 +184,7 @@ class TestErrorHandling:
     def test_collection_empty_iteration(self):
         """Test iterating empty collection."""
         from cursordata.collections import Collection
-        
+
         collection = Collection([])
         items = list(collection)
         assert items == []
@@ -194,7 +192,7 @@ class TestErrorHandling:
     def test_collection_index_out_of_range(self):
         """Test accessing collection index out of range."""
         from cursordata.collections import Collection
-        
+
         collection = Collection([1, 2, 3])
         with pytest.raises(IndexError):
             _ = collection[10]
@@ -248,7 +246,7 @@ class TestBoundaryConditions:
     def test_collection_very_large(self):
         """Test collection with many items."""
         from cursordata.collections import Collection
-        
+
         items = list(range(10000))
         collection = Collection(items)
         assert len(collection) == 10000

@@ -4,23 +4,21 @@ import json
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-from unittest.mock import MagicMock, Mock
+from typing import Any
 
 import pytest
 
+from cursordata.cursordiskkv_models import BubbleConversation
 from cursordata.models import (
     AICodeTrackingEntry,
     ComposerSession,
-    DatabaseLocation,
     ItemTableKey,
     UsageStats,
 )
-from cursordata.cursordiskkv_models import BubbleConversation
 
 
 @pytest.fixture
-def sample_tracking_entry_data() -> Dict[str, Any]:
+def sample_tracking_entry_data() -> dict[str, Any]:
     """Sample AI code tracking entry data."""
     return {
         "hash": "abc123",
@@ -34,13 +32,13 @@ def sample_tracking_entry_data() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def sample_tracking_entry(sample_tracking_entry_data: Dict[str, Any]) -> AICodeTrackingEntry:
+def sample_tracking_entry(sample_tracking_entry_data: dict[str, Any]) -> AICodeTrackingEntry:
     """Sample AICodeTrackingEntry instance."""
     return AICodeTrackingEntry.from_dict(sample_tracking_entry_data)
 
 
 @pytest.fixture
-def sample_tracking_entries() -> List[AICodeTrackingEntry]:
+def sample_tracking_entries() -> list[AICodeTrackingEntry]:
     """Multiple sample tracking entries."""
     return [
         AICodeTrackingEntry(
@@ -83,14 +81,14 @@ def sample_tracking_entries() -> List[AICodeTrackingEntry]:
 
 
 @pytest.fixture
-def sample_composer_session_data(sample_tracking_entries: List[AICodeTrackingEntry]) -> ComposerSession:
+def sample_composer_session_data(sample_tracking_entries: list[AICodeTrackingEntry]) -> ComposerSession:
     """Sample ComposerSession."""
     entries_001 = [e for e in sample_tracking_entries if e.composer_id == "comp_001"]
     return ComposerSession.from_entries("comp_001", entries_001)
 
 
 @pytest.fixture
-def sample_bubble_data() -> Dict[str, Any]:
+def sample_bubble_data() -> dict[str, Any]:
     """Sample bubble conversation data."""
     return {
         "_v": 1,
@@ -117,7 +115,7 @@ def sample_bubble_data() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def sample_bubble_conversation(sample_bubble_data: Dict[str, Any]) -> BubbleConversation:
+def sample_bubble_conversation(sample_bubble_data: dict[str, Any]) -> BubbleConversation:
     """Sample BubbleConversation instance."""
     return BubbleConversation.from_dict(sample_bubble_data, bubble_id="bubble_001")
 
@@ -133,11 +131,11 @@ def mock_db_connection(mock_db_path: Path):
     """Create a mock SQLite database connection."""
     conn = sqlite3.connect(str(mock_db_path))
     cursor = conn.cursor()
-    
+
     # Create tables
     cursor.execute("CREATE TABLE IF NOT EXISTS ItemTable (key TEXT PRIMARY KEY, value BLOB)")
     cursor.execute("CREATE TABLE IF NOT EXISTS cursorDiskKV (key TEXT PRIMARY KEY, value TEXT)")
-    
+
     # Insert sample data
     sample_tracking_data = [
         {
@@ -159,22 +157,22 @@ def mock_db_connection(mock_db_path: Path):
             },
         },
     ]
-    
+
     cursor.execute(
         "INSERT INTO ItemTable (key, value) VALUES (?, ?)",
         (ItemTableKey.AI_CODE_TRACKING_LINES.value, json.dumps(sample_tracking_data).encode("utf-8")),
     )
-    
+
     cursor.execute(
         "INSERT INTO ItemTable (key, value) VALUES (?, ?)",
         (ItemTableKey.AI_CODE_TRACKING_SCORED_COMMITS.value, json.dumps(["commit1", "commit2"]).encode("utf-8")),
     )
-    
+
     cursor.execute(
         "INSERT INTO ItemTable (key, value) VALUES (?, ?)",
         (ItemTableKey.AI_CODE_TRACKING_START_TIME.value, b"1704067200.0"),
     )
-    
+
     # Sample bubble conversation
     bubble_data = {
         "_v": 1,
@@ -187,17 +185,17 @@ def mock_db_connection(mock_db_path: Path):
         "outputTokens": 50,
         "isAgentic": False,
     }
-    
+
     cursor.execute(
         "INSERT INTO cursorDiskKV (key, value) VALUES (?, ?)",
         ("bubbleId:bubble_001:conv_001", json.dumps(bubble_data)),
     )
-    
+
     conn.commit()
     conn.row_factory = sqlite3.Row
-    
+
     yield conn
-    
+
     conn.close()
 
 
@@ -205,7 +203,7 @@ def mock_db_connection(mock_db_path: Path):
 def mock_client(mock_db_path: Path, mock_db_connection):
     """Create a CursorDataClient with mocked database."""
     from cursordata.client import CursorDataClient
-    
+
     client = CursorDataClient(db_path=str(mock_db_path))
     client._connection = mock_db_connection
     return client
@@ -217,13 +215,13 @@ def mock_platform(monkeypatch):
     def _mock_platform(system_name: str = "Darwin"):
         """Create a platform mock."""
         original_system = __import__("platform").system
-        
+
         def mock_system():
             return system_name
-        
+
         monkeypatch.setattr("platform.system", mock_system)
         return original_system
-    
+
     return _mock_platform
 
 
@@ -245,14 +243,14 @@ def empty_db_connection(tmp_path: Path):
     db_path = tmp_path / "empty_db.db"
     conn = sqlite3.connect(str(db_path))
     cursor = conn.cursor()
-    
+
     cursor.execute("CREATE TABLE IF NOT EXISTS ItemTable (key TEXT PRIMARY KEY, value BLOB)")
     cursor.execute("CREATE TABLE IF NOT EXISTS cursorDiskKV (key TEXT PRIMARY KEY, value TEXT)")
-    
+
     conn.commit()
     conn.row_factory = sqlite3.Row
-    
+
     yield conn
-    
+
     conn.close()
 

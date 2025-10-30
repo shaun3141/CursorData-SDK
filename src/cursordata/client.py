@@ -3,18 +3,13 @@
 import logging
 import platform
 import sqlite3
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterator, List, Optional, TypeVar, Union
+from typing import Any, Callable, Optional, TypeVar, Union
 
-from cursordata.utils import decode_json_value, parse_cursordiskkv_rows
-
-from cursordata.models import (
-    AICodeTrackingEntry,
-    ComposerSession,
-    DatabaseInfo,
-    DatabaseLocation,
-    ItemTableKey,
-    UsageStats,
+from cursordata.collections import (
+    AICodeTrackingCollection,
+    ComposerSessionCollection,
 )
 from cursordata.cursordiskkv_models import (
     BubbleConversation,
@@ -24,12 +19,16 @@ from cursordata.cursordiskkv_models import (
     InlineDiffs,
     MessageRequestContext,
 )
-from cursordata.collections import (
-    AICodeTrackingCollection,
-    BubbleCollection,
-    ComposerSessionCollection,
+from cursordata.models import (
+    AICodeTrackingEntry,
+    ComposerSession,
+    DatabaseInfo,
+    DatabaseLocation,
+    ItemTableKey,
+    UsageStats,
 )
 from cursordata.query import QueryBuilder
+from cursordata.utils import decode_json_value, parse_cursordiskkv_rows
 
 logger = logging.getLogger(__name__)
 
@@ -129,16 +128,16 @@ class CursorDataClient:
     def _query_cursordiskkv(
         self,
         key_prefix: str,
-        factory: Callable[[Dict[str, Any], Optional[Dict[str, str]]], Optional[T]],
+        factory: Callable[[dict[str, Any], Optional[dict[str, str]]], Optional[T]],
         key_pattern: Optional[str] = None,
-        key_parser: Optional[Callable[[str], Dict[str, str]]] = None,
+        key_parser: Optional[Callable[[str], dict[str, str]]] = None,
         filter_id: Optional[str] = None,
         limit: Optional[int] = None,
         offset: int = 0,
         exact_match: bool = False,
-    ) -> List[T]:
+    ) -> list[T]:
         """Generic helper to query cursorDiskKV table.
-        
+
         Args:
             key_prefix: Key prefix to match (e.g., "bubbleId:", "checkpointId:")
             factory: Function to create model instances from data dict and optional key parts.
@@ -148,7 +147,7 @@ class CursorDataClient:
             limit: Maximum number of results.
             offset: Number of results to skip.
             exact_match: If True, use exact key match instead of LIKE.
-            
+
         Returns:
             List of model instances.
         """
@@ -167,7 +166,7 @@ class CursorDataClient:
                 query = "SELECT key, value FROM cursorDiskKV WHERE key = ?"
                 params = (key_prefix,)
             else:
-                query = f"SELECT key, value FROM cursorDiskKV WHERE key LIKE ?"
+                query = "SELECT key, value FROM cursorDiskKV WHERE key LIKE ?"
                 params = (f"{key_prefix}%",)
 
         if limit:
@@ -270,7 +269,7 @@ class CursorDataClient:
         """
         return self.get_value(ItemTableKey.AI_CODE_TRACKING_START_TIME)
 
-    def get_ai_scored_commits(self) -> List[str]:
+    def get_ai_scored_commits(self) -> list[str]:
         """Get list of scored commit hashes.
 
         Returns:
@@ -292,7 +291,7 @@ class CursorDataClient:
         start_time = self.get_ai_code_tracking_start_time()
 
         # Count file extensions
-        extension_counts: Dict[str, int] = {}
+        extension_counts: dict[str, int] = {}
         composer_sessions: set = set()
 
         for entry in entries_collection:
@@ -330,7 +329,7 @@ class CursorDataClient:
         entries = self.get_ai_code_tracking_entries()
 
         # Group entries by composer_id
-        sessions_dict: Dict[str, List[AICodeTrackingEntry]] = {}
+        sessions_dict: dict[str, list[AICodeTrackingEntry]] = {}
         for entry in entries:
             if entry.composer_id:
                 if entry.composer_id not in sessions_dict:
@@ -345,7 +344,7 @@ class CursorDataClient:
         return ComposerSessionCollection(sessions)
 
 
-    def get_cursordiskkv_entry(self, key: str) -> Optional[Union[BubbleConversation, MessageRequestContext, Checkpoint, CodeBlockDiff, ComposerData, InlineDiffs, Dict[str, Any]]]:
+    def get_cursordiskkv_entry(self, key: str) -> Optional[Union[BubbleConversation, MessageRequestContext, Checkpoint, CodeBlockDiff, ComposerData, InlineDiffs, dict[str, Any]]]:
         """Get a specific cursorDiskKV entry by key.
 
         Args:
@@ -359,17 +358,17 @@ class CursorDataClient:
 
         conn = self._get_connection()
         cursor = conn.cursor()
-        
+
         cursor.execute("SELECT key, value FROM cursorDiskKV WHERE key = ?", (key,))
         row = cursor.fetchone()
-        
+
         if not row:
             return None
-        
+
         data = decode_json_value(row["value"])
         if data is None or not isinstance(data, dict):
             return data
-        
+
         # Route to appropriate model based on key prefix
         if key.startswith("bubbleId:"):
             key_parts = parse_key_pattern(key, "bubbleId:{bubble_id}:{conversation_id}")
@@ -391,7 +390,7 @@ class CursorDataClient:
             # Unknown pattern, return raw dict
             return data
 
-    def search_keys(self, pattern: str, table: str = "ItemTable") -> List[str]:
+    def search_keys(self, pattern: str, table: str = "ItemTable") -> list[str]:
         """Search for keys matching a pattern.
 
         Args:

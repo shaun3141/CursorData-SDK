@@ -2,11 +2,12 @@
 
 import re
 import string
-from hypothesis import given, strategies as st
 
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 
-from cursordata.utils import decode_json_value, parse_key_pattern, camel_to_snake
+from cursordata.utils import camel_to_snake, decode_json_value, parse_key_pattern
 
 
 @pytest.mark.unit

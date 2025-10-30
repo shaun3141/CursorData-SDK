@@ -1,11 +1,10 @@
 """Data models and type definitions for Cursor database entities."""
 
-import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional
 
 
 class DatabaseLocation(str, Enum):
@@ -47,7 +46,7 @@ class ItemTableKey(str, Enum):
 @dataclass
 class AICodeTrackingEntry:
     """Represents a single AI code tracking entry.
-    
+
     The metadata dictionary contains additional information including:
     - source: Where the code came from (e.g., "composer")
     - composerId: ID of the composer session that generated this code
@@ -56,7 +55,7 @@ class AICodeTrackingEntry:
     """
 
     hash: str
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
 
     @property
     def source(self) -> Optional[str]:
@@ -79,7 +78,7 @@ class AICodeTrackingEntry:
         return self.metadata.get("fileName")
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "AICodeTrackingEntry":
+    def from_dict(cls, data: dict[str, Any]) -> "AICodeTrackingEntry":
         """Create an instance from a dictionary."""
         return cls(hash=data["hash"], metadata=data.get("metadata", {}))
 
@@ -91,7 +90,7 @@ class UsageStats:
     total_tracking_entries: int = 0
     total_scored_commits: int = 0
     tracking_start_time: Optional[datetime] = None
-    most_used_file_extensions: Dict[str, int] = field(default_factory=dict)
+    most_used_file_extensions: dict[str, int] = field(default_factory=dict)
     composer_sessions: int = 0
 
 
@@ -100,12 +99,12 @@ class ComposerSession:
     """Represents a composer session with associated files and entries."""
 
     composer_id: str
-    files_modified: List[str] = field(default_factory=list)
-    file_extensions: List[str] = field(default_factory=list)
+    files_modified: list[str] = field(default_factory=list)
+    file_extensions: list[str] = field(default_factory=list)
     entries_count: int = 0
 
     @classmethod
-    def from_entries(cls, composer_id: str, entries: List[AICodeTrackingEntry]) -> "ComposerSession":
+    def from_entries(cls, composer_id: str, entries: list[AICodeTrackingEntry]) -> "ComposerSession":
         """Create a ComposerSession from a list of tracking entries."""
         files = list(set(e.file_name for e in entries if e.file_name))
         extensions = list(set(e.file_extension for e in entries if e.file_extension))

@@ -1,10 +1,10 @@
 """Test data factories for creating test objects."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
-from cursordata.models import AICodeTrackingEntry, ComposerSession
 from cursordata.cursordiskkv_models import BubbleConversation
+from cursordata.models import AICodeTrackingEntry, ComposerSession
 
 
 class TrackingEntryFactory:
@@ -27,7 +27,7 @@ class TrackingEntryFactory:
         return AICodeTrackingEntry.from_dict(defaults)
 
     @staticmethod
-    def create_batch(count: int, **kwargs) -> List[AICodeTrackingEntry]:
+    def create_batch(count: int, **kwargs) -> list[AICodeTrackingEntry]:
         """Create multiple tracking entries."""
         entries = []
         base_metadata = kwargs.pop("metadata", {})
@@ -45,7 +45,7 @@ class ComposerSessionFactory:
     """Factory for creating ComposerSession test objects."""
 
     @staticmethod
-    def create(composer_id: str = "comp_001", entries: Optional[List[AICodeTrackingEntry]] = None, **kwargs) -> ComposerSession:
+    def create(composer_id: str = "comp_001", entries: Optional[list[AICodeTrackingEntry]] = None, **kwargs) -> ComposerSession:
         """Create a composer session with default or custom values."""
         if entries is None:
             entries = TrackingEntryFactory.create_batch(2, metadata={"composerId": composer_id})
@@ -84,7 +84,7 @@ class BubbleConversationFactory:
         return BubbleConversation.from_dict(defaults, bubble_id=defaults["bubbleId"])
 
     @staticmethod
-    def create_batch(count: int, **kwargs) -> List[BubbleConversation]:
+    def create_batch(count: int, **kwargs) -> list[BubbleConversation]:
         """Create multiple bubble conversations."""
         bubbles = []
         for i in range(count):

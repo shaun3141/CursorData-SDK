@@ -3,7 +3,7 @@
 import json
 import logging
 import re
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
+from typing import Any, Callable, Optional, TypeVar, Union
 
 logger = logging.getLogger(__name__)
 
@@ -12,10 +12,10 @@ T = TypeVar("T")
 
 def decode_json_value(value: Union[bytes, str, None]) -> Optional[Any]:
     """Unified JSON decoding for database values.
-    
+
     Args:
         value: Database value (bytes or str).
-        
+
     Returns:
         Parsed JSON value, or None if parsing fails.
     """
@@ -31,22 +31,22 @@ def decode_json_value(value: Union[bytes, str, None]) -> Optional[Any]:
         return None
 
 
-def parse_key_pattern(key: str, pattern: str) -> Optional[Dict[str, str]]:
+def parse_key_pattern(key: str, pattern: str) -> Optional[dict[str, str]]:
     """Parse a key using a pattern and extract parts.
-    
+
     Supports patterns like:
     - "bubbleId:{bubble_id}:{conversation_id}" -> extracts bubble_id and conversation_id
     - "checkpointId:{bubble_id}:{checkpoint_id}" -> extracts bubble_id and checkpoint_id
     - "composerData:{composer_id}" -> extracts composer_id
     - "inlineDiffs-{workspace_id}" -> extracts workspace_id
-    
+
     Args:
         key: The database key to parse.
         pattern: Pattern with named groups in {name} format.
-        
+
     Returns:
         Dictionary with extracted parts, or None if pattern doesn't match.
-        
+
     Example:
         >>> parse_key_pattern("bubbleId:abc:123", "bubbleId:{bubble_id}:{conversation_id}")
         {'bubble_id': 'abc', 'conversation_id': '123'}
@@ -58,7 +58,7 @@ def parse_key_pattern(key: str, pattern: str) -> Optional[Dict[str, str]]:
     if len(parts) == 1:
         # No placeholders, just check if exact match
         return {} if key == pattern else None
-    
+
     regex_parts = [re.escape(parts[0])]
     for i, part in enumerate(parts[1:]):
         if "}" in part:
@@ -71,7 +71,7 @@ def parse_key_pattern(key: str, pattern: str) -> Optional[Dict[str, str]]:
                 regex_parts.append(f"(?P<{name}>[^:]+)")
             if rest:
                 regex_parts.append(re.escape(rest))
-    
+
     regex_pattern = "".join(regex_parts)
     match = re.match(regex_pattern, key)
     if match:
@@ -81,13 +81,13 @@ def parse_key_pattern(key: str, pattern: str) -> Optional[Dict[str, str]]:
 
 def camel_to_snake(name: str) -> str:
     """Convert camelCase to snake_case.
-    
+
     Args:
         name: camelCase string.
-        
+
     Returns:
         snake_case string.
-        
+
     Example:
         >>> camel_to_snake("bubbleId")
         'bubble_id'
@@ -99,13 +99,13 @@ def camel_to_snake(name: str) -> str:
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
-def map_dict_to_model(data: Dict[str, Any], field_mapping: Dict[str, str]) -> Dict[str, Any]:
+def map_dict_to_model(data: dict[str, Any], field_mapping: dict[str, str]) -> dict[str, Any]:
     """Map dictionary keys using a field mapping.
-    
+
     Args:
         data: Source dictionary.
         field_mapping: Mapping from source keys to target keys.
-        
+
     Returns:
         New dictionary with mapped keys.
     """
@@ -116,28 +116,27 @@ def map_dict_to_model(data: Dict[str, Any], field_mapping: Dict[str, str]) -> Di
     return result
 
 
-def auto_map_camel_to_snake(data: Dict[str, Any], known_fields: Optional[Dict[str, str]] = None) -> tuple:
+def auto_map_camel_to_snake(data: dict[str, Any], known_fields: Optional[dict[str, str]] = None) -> tuple:
     """Automatically map camelCase keys to snake_case, handling known special cases.
-    
+
     Args:
         data: Source dictionary with camelCase keys.
         known_fields: Optional mapping of known fields (camelCase -> snake_case).
                      If not provided, auto-converts all keys.
-        
+
     Returns:
         Tuple of (mapped_fields, unknown_fields).
     """
-    from typing import Tuple
-    
-    mapped: Dict[str, Any] = {}
-    unknown: Dict[str, Any] = {}
-    
+
+    mapped: dict[str, Any] = {}
+    unknown: dict[str, Any] = {}
+
     if known_fields:
         # Use provided mapping for known fields
         for camel_key, snake_key in known_fields.items():
             if camel_key in data:
                 mapped[snake_key] = data[camel_key]
-        
+
         # Auto-convert any remaining keys
         for key, value in data.items():
             if key not in known_fields:
@@ -148,63 +147,63 @@ def auto_map_camel_to_snake(data: Dict[str, Any], known_fields: Optional[Dict[st
         for key, value in data.items():
             snake_key = camel_to_snake(key)
             mapped[snake_key] = value
-    
+
     return mapped, unknown
 
 
 def parse_cursordiskkv_rows(
-    rows: List[Any],
-    factory: Callable[[Dict[str, Any], Optional[Dict[str, str]]], Optional[T]],
-    key_parser: Optional[Callable[[str], Dict[str, str]]] = None,
+    rows: list[Any],
+    factory: Callable[[dict[str, Any], Optional[dict[str, str]]], Optional[T]],
+    key_parser: Optional[Callable[[str], dict[str, str]]] = None,
     key_pattern: Optional[str] = None,
-) -> List[T]:
+) -> list[T]:
     """Parse cursorDiskKV rows into model objects with error handling.
-    
+
     Args:
         rows: Database rows (from sqlite3 cursor).
         factory: Function that creates model from dict and optional key parts.
         key_parser: Optional function to parse key into parts.
         key_pattern: Optional pattern string for key parsing.
-        
+
     Returns:
         List of successfully parsed model objects.
     """
     results = []
     errors = []
-    
+
     for row in rows:
         try:
             key = row["key"]
             value = row["value"]
-            
+
             # Decode JSON value
             data = decode_json_value(value)
             if data is None:
                 errors.append((key, "Failed to decode JSON"))
                 continue
-            
+
             if not isinstance(data, dict):
                 errors.append((key, f"Expected dict, got {type(data).__name__}"))
                 continue
-            
+
             # Parse key if parser provided
             key_parts = None
             if key_parser:
                 key_parts = key_parser(key)
             elif key_pattern:
                 key_parts = parse_key_pattern(key, key_pattern)
-            
+
             # Create model instance
             if key_parts:
                 instance = factory(data, key_parts)
             else:
                 instance = factory(data)
-            
+
             if instance:
                 results.append(instance)
             else:
                 errors.append((key, "Factory returned None"))
-                
+
         except Exception as e:
             try:
                 key = row["key"]
@@ -212,9 +211,9 @@ def parse_cursordiskkv_rows(
                 key = "unknown"
             errors.append((key, str(e)))
             logger.warning(f"Failed to parse cursorDiskKV row {key}: {e}")
-    
+
     if errors:
         logger.debug(f"Parsed {len(results)}/{len(rows)} rows successfully, {len(errors)} errors")
-    
+
     return results
 

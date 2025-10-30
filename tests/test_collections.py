@@ -8,7 +8,7 @@ from cursordata.collections import (
     Collection,
     ComposerSessionCollection,
 )
-from cursordata.models import AICodeTrackingEntry, ComposerSession
+from cursordata.models import ComposerSession
 
 
 @pytest.mark.unit
@@ -55,7 +55,7 @@ class TestCollection:
         collection = Collection([3, 1, 4, 2])
         sorted_collection = collection.sort()
         assert sorted_collection.items == [1, 2, 3, 4]
-        
+
         reverse_sorted = collection.sort(reverse=True)
         assert reverse_sorted.items == [4, 3, 2, 1]
 
@@ -219,14 +219,14 @@ class TestBubbleCollection:
 
     def test_filter_by_date_range(self, sample_bubble_conversation):
         """Test filtering by date range."""
-        from datetime import datetime, timedelta
-        
+        from datetime import datetime
+
         collection = BubbleCollection([sample_bubble_conversation])
         start = datetime(2023, 12, 1)
         end = datetime(2024, 12, 31)
         filtered = collection.filter_by_date_range(start, end)
         assert len(filtered) == 1
-        
+
         future_start = datetime(2025, 1, 1)
         filtered_future = collection.filter_by_date_range(future_start)
         assert len(filtered_future) == 0
@@ -236,7 +236,7 @@ class TestBubbleCollection:
         collection = BubbleCollection([sample_bubble_conversation])
         filtered = collection.filter_by_model("gpt-4")
         assert len(filtered) == 1
-        
+
         filtered_wrong = collection.filter_by_model("gpt-3.5")
         assert len(filtered_wrong) == 0
 
@@ -245,7 +245,7 @@ class TestBubbleCollection:
         collection = BubbleCollection([sample_bubble_conversation])
         filtered = collection.filter_by_token_count(min_input=50, min_output=25)
         assert len(filtered) == 1
-        
+
         filtered_high = collection.filter_by_token_count(min_input=200)
         assert len(filtered_high) == 0
 

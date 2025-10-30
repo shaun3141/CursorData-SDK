@@ -1,17 +1,17 @@
 """Tests for model groups."""
 
-import pytest
 from datetime import datetime
+
+import pytest
 
 from cursordata.model_groups import (
     CodeGroup,
     ContextGroup,
-    MetadataGroup,
     LintingGroup,
-    VersionControlGroup,
+    MetadataGroup,
     ToolGroup,
+    VersionControlGroup,
 )
-from cursordata.cursordiskkv_models import BubbleConversation
 from tests.factories import BubbleConversationFactory
 
 

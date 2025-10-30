@@ -1,15 +1,12 @@
 """Tests for CursorDataClient."""
 
-import json
 import sqlite3
-from datetime import datetime
-from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
 from cursordata.client import CursorDataClient
-from cursordata.models import DatabaseLocation, ItemTableKey
+from cursordata.models import ItemTableKey
 
 
 @pytest.mark.unit
@@ -20,7 +17,7 @@ class TestCursorDataClientInit:
         """Test initialization with explicit database path."""
         db_path = tmp_path / "test.db"
         db_path.touch()
-        
+
         client = CursorDataClient(db_path=str(db_path))
         assert client.db_path == db_path.resolve()
 
@@ -28,7 +25,7 @@ class TestCursorDataClientInit:
         """Test initialization with tilde-expanded path."""
         db_path = tmp_path / "test.db"
         db_path.touch()
-        
+
         # Create a path with tilde-like structure
         client = CursorDataClient(db_path=str(db_path))
         assert client.db_path.exists()
@@ -37,11 +34,11 @@ class TestCursorDataClientInit:
     def test_init_auto_find_macos(self, mock_platform, tmp_path, monkeypatch):
         """Test auto-finding database on macOS."""
         mock_platform.return_value = "Darwin"
-        
+
         # Mock the database path to point to our temp path
         db_path = tmp_path / "state.vscdb"
         db_path.touch()
-        
+
         with patch.object(CursorDataClient, "_find_database", return_value=db_path):
             client = CursorDataClient()
             assert client.db_path == db_path
@@ -50,11 +47,11 @@ class TestCursorDataClientInit:
     def test_init_auto_find_windows(self, mock_platform, tmp_path):
         """Test auto-finding database on Windows."""
         mock_platform.return_value = "Windows"
-        
+
         # Create a real database file for the test
         db_path = tmp_path / "windows_db.db"
         db_path.touch()
-        
+
         with patch.object(
             CursorDataClient, "_find_database", return_value=db_path
         ):
@@ -65,11 +62,11 @@ class TestCursorDataClientInit:
     def test_init_auto_find_linux(self, mock_platform, tmp_path):
         """Test auto-finding database on Linux."""
         mock_platform.return_value = "Linux"
-        
+
         # Create a real database file for the test
         db_path = tmp_path / "linux_db.db"
         db_path.touch()
-        
+
         with patch.object(
             CursorDataClient, "_find_database", return_value=db_path
         ):
@@ -80,14 +77,14 @@ class TestCursorDataClientInit:
     def test_init_unsupported_platform(self, mock_platform):
         """Test initialization fails on unsupported platform."""
         mock_platform.return_value = "UnknownOS"
-        
+
         with pytest.raises(OSError, match="Unsupported platform"):
             CursorDataClient()
 
     def test_init_database_not_found(self, tmp_path):
         """Test initialization fails when database doesn't exist."""
         db_path = tmp_path / "nonexistent.db"
-        
+
         with pytest.raises(FileNotFoundError, match="Cursor database not found"):
             CursorDataClient(db_path=str(db_path))
 
@@ -100,7 +97,7 @@ class TestCursorDataClientContextManager:
         """Test client as context manager."""
         with mock_client as client:
             assert isinstance(client, CursorDataClient)
-        
+
         # Connection should be closed after context
         assert mock_client._connection is None or mock_client._connection.closed, \
             "Connection should be closed after context manager exits"
@@ -112,7 +109,7 @@ class TestCursorDataClientContextManager:
                 raise ValueError("Test exception")
         except ValueError:
             pass
-        
+
         # Connection should be closed even when exception occurs
         assert mock_client._connection is None or mock_client._connection.closed, \
             "Connection should be closed even when exception occurs in context"
@@ -166,7 +163,7 @@ class TestCursorDataClientDatabaseOperations:
         """Test closing connection."""
         conn = mock_client._get_connection()
         assert conn is not None
-        
+
         mock_client.close()
         assert mock_client._connection is None
 
@@ -187,7 +184,7 @@ class TestCursorDataClientTrackingMethods:
         db_path.touch()  # Create the file so client init doesn't fail
         client = CursorDataClient(db_path=str(db_path))
         client._connection = empty_db_connection
-        
+
         try:
             entries = client.get_ai_code_tracking_entries()
             assert len(entries) == 0
@@ -232,7 +229,7 @@ class TestCursorDataClientComposerMethods:
         db_path.touch()  # Create the file so client init doesn't fail
         client = CursorDataClient(db_path=str(db_path))
         client._connection = empty_db_connection
-        
+
         try:
             sessions = client.get_composer_sessions()
             assert len(sessions) == 0
@@ -289,12 +286,12 @@ class TestCursorDataClientCursorDiskKVMethods:
     def test_query_cursordiskkv(self, mock_client):
         """Test querying cursorDiskKV table."""
         from cursordata.cursordiskkv_models import BubbleConversation
-        
+
         def factory(data, key_parts=None):
             bubble_id = key_parts.get("bubble_id") if key_parts else None
             conversation_id = key_parts.get("conversation_id") if key_parts else None
             return BubbleConversation.from_dict(data, bubble_id=bubble_id, conversation_id=conversation_id)
-        
+
         results = mock_client._query_cursordiskkv(
             key_prefix="bubbleId:",
             factory=factory,

@@ -5,12 +5,12 @@ import json
 import pytest
 
 from cursordata.utils import (
+    auto_map_camel_to_snake,
     camel_to_snake,
     decode_json_value,
     map_dict_to_model,
-    parse_key_pattern,
     parse_cursordiskkv_rows,
-    auto_map_camel_to_snake,
+    parse_key_pattern,
 )
 
 
@@ -247,12 +247,12 @@ class TestParseCursordiskkvRows:
                 elif key == "value":
                     return json.dumps({"type": 1})
                 raise KeyError(key)
-        
+
         rows = [MockRow()]
-        
+
         def factory(data, key_parts=None):
             return data
-        
+
         result = parse_cursordiskkv_rows(rows, factory, key_pattern="bubbleId:{id}:{conv}")
         assert len(result) == 1
 
@@ -265,12 +265,12 @@ class TestParseCursordiskkvRows:
                 elif key == "value":
                     return "invalid json{"
                 raise KeyError(key)
-        
+
         rows = [MockRow()]
-        
+
         def factory(data, key_parts=None):
             return data
-        
+
         result = parse_cursordiskkv_rows(rows, factory)
         assert len(result) == 0
 
@@ -283,12 +283,12 @@ class TestParseCursordiskkvRows:
                 elif key == "value":
                     return json.dumps([1, 2, 3])
                 raise KeyError(key)
-        
+
         rows = [MockRow()]
-        
+
         def factory(data, key_parts=None):
             return data
-        
+
         result = parse_cursordiskkv_rows(rows, factory)
         assert len(result) == 0
 
@@ -301,15 +301,15 @@ class TestParseCursordiskkvRows:
                 elif key == "value":
                     return json.dumps({"type": 1})
                 raise KeyError(key)
-        
+
         rows = [MockRow()]
-        
+
         def factory(data, key_parts=None):
             return {"data": data, "parts": key_parts}
-        
+
         def key_parser(key):
             return {"bubble_id": key.split(":")[1]}
-        
+
         result = parse_cursordiskkv_rows(rows, factory, key_parser=key_parser)
         assert len(result) == 1
         assert result[0]["parts"] == {"bubble_id": "b1"}

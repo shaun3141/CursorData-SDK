@@ -88,7 +88,7 @@ class TestComposerSession:
         """Test creating session from entries."""
         entries_001 = [e for e in sample_tracking_entries if e.composer_id == "comp_001"]
         session = ComposerSession.from_entries("comp_001", entries_001)
-        
+
         assert session.composer_id == "comp_001"
         assert session.entries_count == 2
         assert len(session.files_modified) == 2
@@ -122,7 +122,7 @@ class TestComposerSession:
                 },
             ),
         ]
-        
+
         session = ComposerSession.from_entries("comp_001", entries)
         assert len(session.files_modified) == 1
         assert session.files_modified[0] == "/path/to/file.py"
@@ -147,7 +147,7 @@ class TestComposerSession:
                 },
             ),
         ]
-        
+
         session = ComposerSession.from_entries("comp_001", entries)
         assert len(session.file_extensions) == 1
         assert ".py" in session.file_extensions

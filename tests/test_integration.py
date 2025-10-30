@@ -1,18 +1,15 @@
 """Integration tests for end-to-end functionality."""
 
 import json
-import sqlite3
-from dataclasses import asdict
-from pathlib import Path
 
 import pytest
 
 from cursordata.client import CursorDataClient
+from cursordata.collections import AICodeTrackingCollection, BubbleCollection
 from cursordata.models import ItemTableKey
-from cursordata.collections import BubbleCollection, AICodeTrackingCollection
 from tests.factories import (
-    TrackingEntryFactory,
     BubbleConversationFactory,
+    TrackingEntryFactory,
 )
 
 
@@ -26,12 +23,12 @@ class TestFullQueryFlow:
         db_path = tmp_path / "integration_test.db"
         db_path.touch()
         client = CursorDataClient(db_path=str(db_path))
-        
+
         # Insert test data
         conn = client._get_connection()
         cursor = conn.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS cursorDiskKV (key TEXT PRIMARY KEY, value TEXT)")
-        
+
         bubbles = BubbleConversationFactory.create_batch(5)
         for i, bubble in enumerate(bubbles):
             key = f"bubbleId:bubble_{i:03d}:conv_{i:03d}"
@@ -53,16 +50,16 @@ class TestFullQueryFlow:
                 (key, value)
             )
         conn.commit()
-        
+
         # Execute query
         results = client.query().bubbles().limit(10).execute()
-        
+
         # Verify results
         assert results is not None
         assert isinstance(results, BubbleCollection)
         assert len(results) == 5
         assert all(hasattr(r, 'bubble_id') for r in results)
-        
+
         client.close()
 
     def test_tracking_entries_query_end_to_end(self, tmp_path):
@@ -71,12 +68,12 @@ class TestFullQueryFlow:
         db_path = tmp_path / "integration_test.db"
         db_path.touch()
         client = CursorDataClient(db_path=str(db_path))
-        
+
         # Insert test data
         conn = client._get_connection()
         cursor = conn.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS ItemTable (key TEXT PRIMARY KEY, value BLOB)")
-        
+
         entries = TrackingEntryFactory.create_batch(3)
         tracking_data = [{"hash": e.hash, "metadata": e.metadata} for e in entries]
         cursor.execute(
@@ -84,15 +81,15 @@ class TestFullQueryFlow:
             (ItemTableKey.AI_CODE_TRACKING_LINES.value, json.dumps(tracking_data).encode("utf-8"))
         )
         conn.commit()
-        
+
         # Execute query
         results = client.query().tracking_entries().execute()
-        
+
         # Verify results
         assert results is not None
         assert isinstance(results, AICodeTrackingCollection)
         assert len(results) == 3
-        
+
         client.close()
 
     def test_query_with_filters_end_to_end(self, tmp_path):
@@ -101,12 +98,12 @@ class TestFullQueryFlow:
         db_path = tmp_path / "integration_test.db"
         db_path.touch()
         client = CursorDataClient(db_path=str(db_path))
-        
+
         # Insert test data
         conn = client._get_connection()
         cursor = conn.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS cursorDiskKV (key TEXT PRIMARY KEY, value TEXT)")
-        
+
         # Create bubbles with different model names
         bubble1_dict = {
             "_v": 1,
@@ -130,7 +127,7 @@ class TestFullQueryFlow:
             "outputTokens": 40,
             "isAgentic": False,
         }
-        
+
         for bubble_dict in [bubble1_dict, bubble2_dict]:
             key = f"bubbleId:{bubble_dict['bubbleId']}:conv_001"
             value = json.dumps(bubble_dict)
@@ -139,14 +136,14 @@ class TestFullQueryFlow:
                 (key, value)
             )
         conn.commit()
-        
+
         # Query with filter
         results = client.query().bubbles().where(model_name="gpt-4").execute()
-        
+
         # Verify filtered results
         assert len(results) == 1
         assert results[0].model_name == "gpt-4"
-        
+
         client.close()
 
     def test_query_chaining_end_to_end(self, tmp_path):
@@ -155,12 +152,12 @@ class TestFullQueryFlow:
         db_path = tmp_path / "integration_test.db"
         db_path.touch()
         client = CursorDataClient(db_path=str(db_path))
-        
+
         # Insert test data
         conn = client._get_connection()
         cursor = conn.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS cursorDiskKV (key TEXT PRIMARY KEY, value TEXT)")
-        
+
         for i in range(10):
             bubble_dict = {
                 "_v": 1,
@@ -180,7 +177,7 @@ class TestFullQueryFlow:
                 (key, value)
             )
         conn.commit()
-        
+
         # Execute chained query
         results = (
             client.query()
@@ -190,11 +187,11 @@ class TestFullQueryFlow:
             .filter(lambda x: True)  # Filter all through
             .execute()
         )
-        
+
         # Verify results
         assert len(results) <= 5  # Limit applied
         assert isinstance(results, BubbleCollection)
-        
+
         client.close()
 
 
@@ -208,7 +205,7 @@ class TestCollectionOperations:
         db_path = tmp_path / "integration_test.db"
         db_path.touch()
         client = CursorDataClient(db_path=str(db_path))
-        
+
         # Insert test data
         entries = TrackingEntryFactory.create_batch(
             5,
@@ -218,24 +215,24 @@ class TestCollectionOperations:
             3,
             metadata={"source": "chat", "fileExtension": ".ts"}
         ))
-        
+
         conn = client._get_connection()
         cursor = conn.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS ItemTable (key TEXT PRIMARY KEY, value BLOB)")
-        
+
         tracking_data = [{"hash": e.hash, "metadata": e.metadata} for e in entries]
         cursor.execute(
             "INSERT INTO ItemTable (key, value) VALUES (?, ?)",
             (ItemTableKey.AI_CODE_TRACKING_LINES.value, json.dumps(tracking_data).encode("utf-8"))
         )
         conn.commit()
-        
+
         # Query and filter
         results = client.query().tracking_entries().execute()
         filtered = results.filter_by_source("composer")
-        
+
         assert len(filtered) == 5
         assert all(e.source == "composer" for e in filtered)
-        
+
         client.close()
 

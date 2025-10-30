@@ -3,8 +3,9 @@
 Provides typed collections with helper methods for filtering, sorting, and grouping.
 """
 
+from collections.abc import Iterator
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Callable, Dict, Generic, Iterator, List, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, TypeVar
 
 if TYPE_CHECKING:
     from cursordata.cursordiskkv_models import BubbleConversation
@@ -17,7 +18,7 @@ U = TypeVar("U")
 class Collection(Generic[T]):
     """Base collection class with common operations."""
 
-    def __init__(self, items: List[T]):
+    def __init__(self, items: list[T]):
         """Initialize collection with items."""
         self._items = items
 
@@ -38,7 +39,7 @@ class Collection(Generic[T]):
         return f"{self.__class__.__name__}({len(self._items)} items)"
 
     @property
-    def items(self) -> List[T]:
+    def items(self) -> list[T]:
         """Get the underlying list of items."""
         return self._items
 
@@ -66,7 +67,7 @@ class Collection(Generic[T]):
         items = sorted(self._items, key=key, reverse=reverse)
         return self.__class__(items)
 
-    def map(self, func: Callable[[T], U]) -> List[U]:
+    def map(self, func: Callable[[T], U]) -> list[U]:
         """Map items using a function.
 
         Args:
@@ -77,7 +78,7 @@ class Collection(Generic[T]):
         """
         return [func(item) for item in self._items]
 
-    def group_by(self, key_func: Callable[[T], str]) -> Dict[str, "Collection[T]"]:
+    def group_by(self, key_func: Callable[[T], str]) -> dict[str, "Collection[T]"]:
         """Group items by a key function.
 
         Args:
@@ -86,7 +87,7 @@ class Collection(Generic[T]):
         Returns:
             Dictionary mapping keys to collections of items.
         """
-        groups: Dict[str, List[T]] = {}
+        groups: dict[str, list[T]] = {}
         for item in self._items:
             key = key_func(item)
             if key not in groups:
@@ -149,7 +150,7 @@ class Collection(Generic[T]):
         """
         return all(predicate(item) for item in self._items)
 
-    def to_list(self) -> List[T]:
+    def to_list(self) -> list[T]:
         """Convert collection to a plain list."""
         return self._items.copy()
 
@@ -169,7 +170,6 @@ class BubbleCollection(Collection["BubbleConversation"]):
         Returns:
             Filtered collection.
         """
-        from cursordata.cursordiskkv_models import BubbleConversation
 
         def predicate(conv: "BubbleConversation") -> bool:
             if not conv.created_at:
@@ -178,7 +178,7 @@ class BubbleCollection(Collection["BubbleConversation"]):
             try:
                 from dateutil.parser import parse as parse_date
                 created = parse_date(conv.created_at)
-                
+
                 # Handle timezone-aware vs naive datetime comparison
                 if start:
                     start_naive = start.replace(tzinfo=None) if start.tzinfo else start
@@ -206,7 +206,6 @@ class BubbleCollection(Collection["BubbleConversation"]):
         Returns:
             Filtered collection.
         """
-        from cursordata.cursordiskkv_models import BubbleConversation
 
         return self.filter(lambda conv: conv.model_name == model_name)
 
@@ -222,7 +221,6 @@ class BubbleCollection(Collection["BubbleConversation"]):
         Returns:
             Filtered collection.
         """
-        from cursordata.cursordiskkv_models import BubbleConversation
 
         def predicate(conv: "BubbleConversation") -> bool:
             if min_input is not None and (conv.input_tokens or 0) < min_input:
@@ -255,13 +253,14 @@ class BubbleCollection(Collection["BubbleConversation"]):
         """Filter for agentic conversations only."""
         return self.filter(lambda conv: conv.is_agentic)
 
-    def group_by_date(self) -> Dict[str, "BubbleCollection"]:
+    def group_by_date(self) -> dict[str, "BubbleCollection"]:
         """Group bubbles by date (YYYY-MM-DD).
 
         Returns:
             Dictionary mapping dates to collections of bubbles.
         """
-        def key_func(conv: BubbleConversation) -> str:
+
+        def key_func(conv: "BubbleConversation") -> str:
             if not conv.created_at:
                 return "unknown"
             try:
@@ -273,13 +272,14 @@ class BubbleCollection(Collection["BubbleConversation"]):
 
         return self.group_by(key_func)
 
-    def group_by_model(self) -> Dict[str, "BubbleCollection"]:
+    def group_by_model(self) -> dict[str, "BubbleCollection"]:
         """Group bubbles by model name.
 
         Returns:
             Dictionary mapping model names to collections of bubbles.
         """
-        def key_func(conv: BubbleConversation) -> str:
+
+        def key_func(conv: "BubbleConversation") -> str:
             return conv.model_name or "unknown"
 
         return self.group_by(key_func)
@@ -311,7 +311,6 @@ class ComposerSessionCollection(Collection["ComposerSession"]):
         Returns:
             Filtered collection.
         """
-        from cursordata.models import ComposerSession
 
         def predicate(session: "ComposerSession") -> bool:
             file_count = len(session.files_modified)
@@ -323,15 +322,14 @@ class ComposerSessionCollection(Collection["ComposerSession"]):
 
         return self.filter(predicate)
 
-    def group_by_extension(self) -> Dict[str, "ComposerSessionCollection"]:
+    def group_by_extension(self) -> dict[str, "ComposerSessionCollection"]:
         """Group sessions by file extension.
 
         Returns:
             Dictionary mapping extensions to collections of sessions.
         """
-        from cursordata.models import ComposerSession
 
-        result: Dict[str, List["ComposerSession"]] = {}
+        result: dict[str, list[ComposerSession]] = {}
         for session in self._items:
             for ext in session.file_extensions:
                 if ext not in result:
@@ -377,26 +375,24 @@ class AICodeTrackingCollection(Collection["AICodeTrackingEntry"]):
         """
         return self.filter(lambda entry: entry.composer_id == composer_id)
 
-    def group_by_source(self) -> Dict[str, "AICodeTrackingCollection"]:
+    def group_by_source(self) -> dict[str, "AICodeTrackingCollection"]:
         """Group entries by source.
 
         Returns:
             Dictionary mapping sources to collections of entries.
         """
-        from cursordata.models import AICodeTrackingEntry
 
         def key_func(entry: "AICodeTrackingEntry") -> str:
             return entry.source or "unknown"
 
         return self.group_by(key_func)
 
-    def group_by_extension(self) -> Dict[str, "AICodeTrackingCollection"]:
+    def group_by_extension(self) -> dict[str, "AICodeTrackingCollection"]:
         """Group entries by file extension.
 
         Returns:
             Dictionary mapping extensions to collections of entries.
         """
-        from cursordata.models import AICodeTrackingEntry
 
         def key_func(entry: "AICodeTrackingEntry") -> str:
             return entry.file_extension or "unknown"

@@ -5,9 +5,12 @@ Groups related fields into logical properties for easier access and understandin
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from dateutil.parser import parse as parse_date
+
+if TYPE_CHECKING:
+    from cursordata.cursordiskkv_models import BubbleConversation
 
 
 @dataclass
@@ -17,42 +20,42 @@ class CodeGroup:
     _conv: "BubbleConversation"
 
     @property
-    def suggested_blocks(self) -> List[Any]:
+    def suggested_blocks(self) -> list[Any]:
         """Get suggested code blocks."""
         return self._conv.suggested_code_blocks
 
     @property
-    def user_responses(self) -> List[Any]:
+    def user_responses(self) -> list[Any]:
         """Get user responses to suggested code blocks."""
         return self._conv.user_responses_to_suggested_code_blocks
 
     @property
-    def assistant_diffs(self) -> List[Any]:
+    def assistant_diffs(self) -> list[Any]:
         """Get assistant suggested diffs."""
         return self._conv.assistant_suggested_diffs
 
     @property
-    def diffs_since_apply(self) -> List[Any]:
+    def diffs_since_apply(self) -> list[Any]:
         """Get diffs since last apply."""
         return self._conv.diffs_since_last_apply
 
     @property
-    def git_diffs(self) -> List[Any]:
+    def git_diffs(self) -> list[Any]:
         """Get git diff information."""
         return self._conv.git_diffs
 
     @property
-    def file_diff_trajectories(self) -> List[Any]:
+    def file_diff_trajectories(self) -> list[Any]:
         """Get file diff trajectories."""
         return self._conv.file_diff_trajectories
 
     @property
-    def diff_histories(self) -> List[Any]:
+    def diff_histories(self) -> list[Any]:
         """Get diff histories."""
         return self._conv.diff_histories
 
     @property
-    def codebase_context(self) -> List[Any]:
+    def codebase_context(self) -> list[Any]:
         """Get codebase context chunks."""
         return self._conv.codebase_context_chunks
 
@@ -73,62 +76,62 @@ class ContextGroup:
     _conv: "BubbleConversation"
 
     @property
-    def context(self) -> Optional[Dict[str, Any]]:
+    def context(self) -> Optional[dict[str, Any]]:
         """Get the main context object."""
         return self._conv.context
 
     @property
-    def attached_code_chunks(self) -> List[Any]:
+    def attached_code_chunks(self) -> list[Any]:
         """Get attached code chunks."""
         return self._conv.attached_code_chunks
 
     @property
-    def attached_files_metadata(self) -> List[Any]:
+    def attached_files_metadata(self) -> list[Any]:
         """Get attached file metadata."""
         return self._conv.attached_file_code_chunks_metadata_only
 
     @property
-    def attached_folders(self) -> List[Any]:
+    def attached_folders(self) -> list[Any]:
         """Get attached folders (new format)."""
         return self._conv.attached_folders_new
 
     @property
-    def attached_folders_old(self) -> List[Any]:
+    def attached_folders_old(self) -> list[Any]:
         """Get attached folders (old format)."""
         return self._conv.attached_folders
 
     @property
-    def cursor_rules(self) -> List[Any]:
+    def cursor_rules(self) -> list[Any]:
         """Get cursor rules."""
         return self._conv.cursor_rules
 
     @property
-    def knowledge_items(self) -> List[Any]:
+    def knowledge_items(self) -> list[Any]:
         """Get knowledge items."""
         return self._conv.knowledge_items
 
     @property
-    def docs_references(self) -> List[Any]:
+    def docs_references(self) -> list[Any]:
         """Get documentation references."""
         return self._conv.docs_references
 
     @property
-    def web_references(self) -> List[Any]:
+    def web_references(self) -> list[Any]:
         """Get web references."""
         return self._conv.web_references
 
     @property
-    def ai_web_search_results(self) -> List[Any]:
+    def ai_web_search_results(self) -> list[Any]:
         """Get AI web search results."""
         return self._conv.ai_web_search_results
 
     @property
-    def external_links(self) -> List[Any]:
+    def external_links(self) -> list[Any]:
         """Get external links."""
         return self._conv.external_links
 
     @property
-    def human_changes(self) -> List[Any]:
+    def human_changes(self) -> list[Any]:
         """Get human changes."""
         return self._conv.human_changes
 
@@ -250,17 +253,17 @@ class LintingGroup:
     _conv: "BubbleConversation"
 
     @property
-    def lints(self) -> List[Any]:
+    def lints(self) -> list[Any]:
         """Get lint errors/warnings."""
         return self._conv.lints
 
     @property
-    def approximate_errors(self) -> List[Any]:
+    def approximate_errors(self) -> list[Any]:
         """Get approximate lint errors."""
         return self._conv.approximate_lint_errors
 
     @property
-    def multi_file_errors(self) -> List[Any]:
+    def multi_file_errors(self) -> list[Any]:
         """Get multi-file linter errors."""
         return self._conv.multi_file_linter_errors
 
@@ -284,17 +287,17 @@ class VersionControlGroup:
     _conv: "BubbleConversation"
 
     @property
-    def commits(self) -> List[Any]:
+    def commits(self) -> list[Any]:
         """Get git commits."""
         return self._conv.commits
 
     @property
-    def pull_requests(self) -> List[Any]:
+    def pull_requests(self) -> list[Any]:
         """Get pull requests."""
         return self._conv.pull_requests
 
     @property
-    def git_diffs(self) -> List[Any]:
+    def git_diffs(self) -> list[Any]:
         """Get git diffs."""
         return self._conv.git_diffs
 
@@ -314,22 +317,22 @@ class ToolGroup:
     _conv: "BubbleConversation"
 
     @property
-    def terminal_files(self) -> List[Any]:
+    def terminal_files(self) -> list[Any]:
         """Get terminal files."""
         return self._conv.terminal_files
 
     @property
-    def interpreter_results(self) -> List[Any]:
+    def interpreter_results(self) -> list[Any]:
         """Get interpreter results."""
         return self._conv.interpreter_results
 
     @property
-    def tool_results(self) -> List[Any]:
+    def tool_results(self) -> list[Any]:
         """Get tool results."""
         return self._conv.tool_results
 
     @property
-    def supported_tools(self) -> List[Any]:
+    def supported_tools(self) -> list[Any]:
         """Get supported tools."""
         return self._conv.supported_tools
 
