@@ -1,0 +1,8 @@
+include README.md
+include LICENSE
+recursive-include docs *.rst *.md
+recursive-exclude docs _build
+recursive-exclude docs .doctrees
+recursive-include examples *.py
+recursive-exclude tests *
+
