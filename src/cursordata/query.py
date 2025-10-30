@@ -399,18 +399,19 @@ class TrackingQuery(BaseQuery):
 
         # Get raw data
         entries = self._client.get_ai_code_tracking_entries()
+        entries_list = list(entries.items)
 
         # Apply pagination before filters
         if self._offset > 0:
-            entries = entries[self._offset :]
+            entries_list = entries_list[self._offset :]
         if self._limit:
-            entries = entries[: self._limit]
+            entries_list = entries_list[: self._limit]
 
         # Apply filters
         for filter_func in self._filters:
-            entries = [e for e in entries if filter_func(e)]
+            entries_list = [e for e in entries_list if filter_func(e)]
 
-        return AICodeTrackingCollection(entries)
+        return AICodeTrackingCollection(entries_list)
 
 
 class CheckpointQuery(BaseQuery):

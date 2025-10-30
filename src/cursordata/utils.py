@@ -199,7 +199,7 @@ def parse_cursordiskkv_rows(
             if key_parts:
                 instance = factory(data, key_parts)
             else:
-                instance = factory(data)
+                instance = factory(data, None)
 
             if instance:
                 results.append(instance)

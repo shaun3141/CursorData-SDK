@@ -5,7 +5,7 @@ import platform
 import sqlite3
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Callable, Optional, TypeVar, Union
+from typing import Any, Callable, Optional, TypeVar, Union, cast
 
 from cursordata.collections import (
     AICodeTrackingCollection,
@@ -107,7 +107,12 @@ class CursorDataClient:
         """Context manager entry."""
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Any,
+    ) -> None:
         """Context manager exit."""
         self.close()
 
@@ -397,7 +402,19 @@ class CursorDataClient:
             return InlineDiffs.from_dict(ws_id, data)
         else:
             # Unknown pattern, return raw dict
-            return data
+            return cast(
+                Union[
+                    BubbleConversation,
+                    MessageRequestContext,
+                    Checkpoint,
+                    CodeBlockDiff,
+                    ComposerData,
+                    InlineDiffs,
+                    dict[str, Any],
+                    None,
+                ],
+                data,
+            )
 
     def search_keys(self, pattern: str, table: str = "ItemTable") -> list[str]:
         """Search for keys matching a pattern.

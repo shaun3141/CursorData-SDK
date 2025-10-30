@@ -67,7 +67,7 @@ class Collection(Generic[T]):
             New sorted collection.
         """
         if key is None:
-            items = sorted(self._items, reverse=reverse)
+            items = sorted(self._items, reverse=reverse)  # type: ignore[type-var]
         else:
             items = sorted(self._items, key=key, reverse=reverse)
         return self.__class__(items)
